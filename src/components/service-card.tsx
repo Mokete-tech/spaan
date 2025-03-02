@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star } from "lucide-react";
+import { Star, ShieldCheck } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ServiceCardProps {
@@ -13,11 +13,13 @@ interface ServiceCardProps {
     avatar: string;
     rating: number;
     reviews: number;
+    verified?: boolean;
   };
   category: string;
   price: number;
   image: string;
   featured?: boolean;
+  currency?: string;
 }
 
 const ServiceCard = ({
@@ -28,8 +30,13 @@ const ServiceCard = ({
   price,
   image,
   featured = false,
+  currency = "ZAR",
 }: ServiceCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
+
+  const formatPrice = (price: number, currency: string) => {
+    return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: currency }).format(price);
+  };
 
   return (
     <Card
@@ -74,7 +81,14 @@ const ServiceCard = ({
               className="h-full w-full object-cover"
             />
           </div>
-          <span className="text-sm text-gray-700">{provider.name}</span>
+          <div className="flex items-center">
+            <span className="text-sm text-gray-700">{provider.name}</span>
+            {provider.verified && (
+              <div className="ml-2 text-green-500" title="Verified Provider">
+                <ShieldCheck className="h-4 w-4" />
+              </div>
+            )}
+          </div>
         </div>
       </CardContent>
       
@@ -86,7 +100,7 @@ const ServiceCard = ({
         </div>
         
         <div className="text-lg font-semibold">
-          ${price}
+          {formatPrice(price, currency)}
         </div>
       </CardFooter>
     </Card>

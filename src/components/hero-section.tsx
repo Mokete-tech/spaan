@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search } from "lucide-react";
+import { Search, Shield } from "lucide-react";
 import CategoryDropdown from "./category-dropdown";
 
 const HeroSection = () => {
@@ -55,7 +55,15 @@ const HeroSection = () => {
             </form>
           </div>
           
-          <div className="mt-8 flex flex-wrap justify-center gap-4 opacity-100">
+          {/* Safety Badge */}
+          <div className="mt-4 flex justify-center">
+            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
+              <Shield className="h-4 w-4 text-green-400" />
+              <span className="text-sm text-white">All providers are vetted for your safety</span>
+            </div>
+          </div>
+          
+          <div className="mt-6 flex flex-wrap justify-center gap-4 opacity-100">
             <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Home Maintenance
             </Button>
@@ -67,6 +75,9 @@ const HeroSection = () => {
             </Button>
             <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Moving
+            </Button>
+            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
+              Digital Services
             </Button>
           </div>
         </div>
