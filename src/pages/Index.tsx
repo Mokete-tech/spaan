@@ -6,7 +6,7 @@ import FeaturedServices from "@/components/featured-services";
 
 const Index = () => {
   return (
-    <main className="min-h-screen bg-white">
+    <main className="min-h-screen bg-spaan-secondary">
       <Navbar />
       <HeroSection />
       <FeaturedServices />

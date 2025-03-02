@@ -18,7 +18,7 @@ const HeroSection = () => {
     <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center justify-center pt-16 overflow-hidden">
       {/* Background Image with Overlay */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30 z-10"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-spaan-dark/70 to-spaan-dark/40 z-10"></div>
         <img
           src="/lovable-uploads/6cf2c389-9e97-4971-a1bd-011ac69caf4e.png"
           alt="Hero background"
@@ -61,16 +61,16 @@ const HeroSection = () => {
           </div>
           
           <div className="mt-8 flex flex-wrap justify-center gap-4 opacity-100">
-            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm">
+            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
               Home Maintenance
             </Button>
-            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm">
+            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
               Landscaping
             </Button>
-            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm">
+            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
               Cleaning
             </Button>
-            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm">
+            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
               Moving
             </Button>
           </div>
