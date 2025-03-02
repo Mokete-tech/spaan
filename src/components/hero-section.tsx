@@ -16,15 +16,10 @@ const HeroSection = () => {
 
   return (
     <section className="relative min-h-[90vh] md:min-h-[85vh] flex items-center justify-center pt-16 overflow-hidden">
-      {/* Background Image with Overlay */}
+      {/* Background Gradient */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute inset-0 bg-gradient-to-b from-spaan-dark/70 to-spaan-dark/40 z-10"></div>
-        <img
-          src="/lovable-uploads/6cf2c389-9e97-4971-a1bd-011ac69caf4e.png"
-          alt="Hero background"
-          className="w-full h-full object-cover object-center"
-          loading="lazy"
-        />
+        <div className="absolute inset-0 bg-gradient-to-b from-purple-900/90 to-indigo-800/80 z-10"></div>
+        <div className="absolute inset-0 bg-[url('https://images.unsplash.com/photo-1519389950473-47ba0277781c')] bg-cover bg-center opacity-30"></div>
       </div>
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
@@ -61,16 +56,16 @@ const HeroSection = () => {
           </div>
           
           <div className="mt-8 flex flex-wrap justify-center gap-4 opacity-100">
-            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
+            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Home Maintenance
             </Button>
-            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
+            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Landscaping
             </Button>
-            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
+            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Cleaning
             </Button>
-            <Button variant="outline" className="bg-spaan-primary/20 text-white border-white/20 hover:bg-spaan-primary/40 backdrop-blur-sm">
+            <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/30 backdrop-blur-sm">
               Moving
             </Button>
           </div>
