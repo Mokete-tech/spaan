@@ -29,14 +29,14 @@ const HeroSection = () => {
       
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white animate-slideUp opacity-0" style={{ animationDelay: "0.1s", animationFillMode: "forwards" }}>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 text-white opacity-100">
             Find skilled professionals for any job
           </h1>
-          <p className="text-xl md:text-2xl text-white/90 mb-8 animate-slideUp opacity-0" style={{ animationDelay: "0.3s", animationFillMode: "forwards" }}>
+          <p className="text-xl md:text-2xl text-white/90 mb-8 opacity-100">
             Local experts will take it from here
           </p>
           
-          <div className="bg-white p-3 rounded-lg shadow-lg max-w-3xl mx-auto animate-slideUp opacity-0" style={{ animationDelay: "0.5s", animationFillMode: "forwards" }}>
+          <div className="bg-white p-3 rounded-lg shadow-lg max-w-3xl mx-auto opacity-100">
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-2">
               <div className="flex-1 relative">
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
@@ -60,7 +60,7 @@ const HeroSection = () => {
             </form>
           </div>
           
-          <div className="mt-8 flex flex-wrap justify-center gap-4 animate-slideUp opacity-0" style={{ animationDelay: "0.7s", animationFillMode: "forwards" }}>
+          <div className="mt-8 flex flex-wrap justify-center gap-4 opacity-100">
             <Button variant="outline" className="bg-white/10 text-white border-white/20 hover:bg-white/20 backdrop-blur-sm">
               Home Maintenance
             </Button>
