@@ -2,7 +2,7 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShieldCheck } from "lucide-react";
+import { Star, ShieldCheck, MapPin } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface ServiceCardProps {
@@ -20,6 +20,8 @@ interface ServiceCardProps {
   image: string;
   featured?: boolean;
   currency?: string;
+  location?: string;
+  isDigital?: boolean;
 }
 
 const ServiceCard = ({
@@ -31,6 +33,8 @@ const ServiceCard = ({
   image,
   featured = false,
   currency = "ZAR",
+  location,
+  isDigital = false,
 }: ServiceCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
 
@@ -62,6 +66,11 @@ const ServiceCard = ({
             Featured
           </Badge>
         )}
+        {isDigital && (
+          <Badge className="absolute top-3 left-3 bg-blue-500">
+            Digital
+          </Badge>
+        )}
       </div>
 
       <CardContent className="p-5">
@@ -69,6 +78,12 @@ const ServiceCard = ({
           <Badge variant="secondary" className="text-xs font-normal bg-gray-100 text-gray-600 hover:bg-gray-200">
             {category}
           </Badge>
+          {location && !isDigital && (
+            <div className="flex items-center text-xs text-gray-500">
+              <MapPin className="h-3 w-3 mr-1" />
+              <span>{location}</span>
+            </div>
+          )}
         </div>
         
         <h3 className="font-medium text-lg mb-2 line-clamp-2 h-14">{title}</h3>

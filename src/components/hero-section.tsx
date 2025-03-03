@@ -1,16 +1,34 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Search, Shield } from "lucide-react";
+import { Search, Shield, MapPin, Globe } from "lucide-react";
 import CategoryDropdown from "./category-dropdown";
+import { getUserLocation, UserLocation } from "@/services/location-service";
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
+  const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const detectLocation = async () => {
+      try {
+        const location = await getUserLocation();
+        setUserLocation(location);
+      } catch (error) {
+        console.error("Failed to get user location:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    detectLocation();
+  }, []);
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery);
+    console.log("Searching for:", searchQuery, "in location:", userLocation?.country);
     // Implement search functionality here
   };
 
@@ -30,6 +48,19 @@ const HeroSection = () => {
           <p className="text-xl md:text-2xl text-white/90 mb-8 opacity-100">
             Local experts will take it from here
           </p>
+          
+          {/* Location Indicator */}
+          {userLocation && (
+            <div className="flex justify-center mb-6">
+              <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm py-2 px-4 rounded-full">
+                <MapPin className="h-4 w-4 text-white" />
+                <span className="text-sm text-white">
+                  {userLocation.city ? `${userLocation.city}, ` : ""}
+                  {userLocation.country} • {userLocation.currency}
+                </span>
+              </div>
+            </div>
+          )}
           
           <div className="bg-white p-3 rounded-lg shadow-lg max-w-3xl mx-auto opacity-100">
             <form onSubmit={handleSearch} className="flex flex-col md:flex-row gap-2">
@@ -56,10 +87,15 @@ const HeroSection = () => {
           </div>
           
           {/* Safety Badge */}
-          <div className="mt-4 flex justify-center">
+          <div className="mt-4 flex justify-center gap-2">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
               <Shield className="h-4 w-4 text-green-400" />
               <span className="text-sm text-white">All providers are vetted for your safety</span>
+            </div>
+            
+            <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
+              <Globe className="h-4 w-4 text-blue-400" />
+              <span className="text-sm text-white">Digital services available worldwide</span>
             </div>
           </div>
           
