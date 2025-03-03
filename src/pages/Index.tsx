@@ -13,9 +13,9 @@ const Index = () => {
       <FeaturedServices />
       
       {/* Backend Integration Note (remove this for production) */}
-      <div className="bg-yellow-50 border-t border-yellow-100 py-3">
+      <div className="bg-blue-50 border-t border-blue-100 py-3">
         <div className="container mx-auto px-4 md:px-6">
-          <p className="text-sm text-yellow-800 text-center">
+          <p className="text-sm text-blue-800 text-center">
             <strong>Developer Note:</strong> Connect to a backend service for escrow payments, user authentication, 
             and service provider verification. Ready for integration with payment processors and database services.
           </p>

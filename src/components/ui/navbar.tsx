@@ -40,19 +40,19 @@ const Navbar = () => {
           <div className="hidden md:flex items-center space-x-6">
             <Link
               to="/explore"
-              className="text-sm font-medium text-gray-700 hover:text-spaan-primary transition-colors"
+              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
             >
               Explore
             </Link>
             <Link
               to="/services"
-              className="text-sm font-medium text-gray-700 hover:text-spaan-primary transition-colors"
+              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
             >
               Services
             </Link>
             <Link
               to="/providers"
-              className="text-sm font-medium text-gray-700 hover:text-spaan-primary transition-colors"
+              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
             >
               Providers
             </Link>
@@ -60,8 +60,8 @@ const Navbar = () => {
 
           <div className="hidden md:flex items-center space-x-4">
             <Button
-              variant="ghost"
-              className="text-sm font-medium hover:text-spaan-primary"
+              variant="outline"
+              className="text-sm font-medium border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
             >
               Sign In
             </Button>
@@ -73,7 +73,7 @@ const Navbar = () => {
           <Button
             variant="ghost"
             size="icon"
-            className="md:hidden"
+            className="md:hidden text-spaan-primary"
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
             aria-label="Toggle menu"
           >
@@ -94,21 +94,21 @@ const Navbar = () => {
             <div className="flex flex-col py-4 px-6 space-y-4">
               <Link
                 to="/explore"
-                className="py-2 text-base font-medium text-gray-700 hover:text-spaan-primary"
+                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Explore
               </Link>
               <Link
                 to="/services"
-                className="py-2 text-base font-medium text-gray-700 hover:text-spaan-primary"
+                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Services
               </Link>
               <Link
                 to="/providers"
-                className="py-2 text-base font-medium text-gray-700 hover:text-spaan-primary"
+                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
                 onClick={() => setMobileMenuOpen(false)}
               >
                 Providers
@@ -117,7 +117,7 @@ const Navbar = () => {
               <div className="flex flex-col space-y-3">
                 <Button
                   variant="outline"
-                  className="w-full justify-center"
+                  className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
                   onClick={() => setMobileMenuOpen(false)}
                 >
                   Sign In
