@@ -4,9 +4,17 @@ import { ChevronDown, ChevronUp } from "lucide-react";
 import { categories } from "@/data/services";
 import { cn } from "@/lib/utils";
 
-const CategoryDropdown = () => {
+interface CategoryDropdownProps {
+  onCategorySelect?: (category: string) => void;
+  defaultCategory?: string;
+}
+
+const CategoryDropdown: React.FC<CategoryDropdownProps> = ({ 
+  onCategorySelect, 
+  defaultCategory = "All Categories" 
+}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [selectedCategory, setSelectedCategory] = useState<string>("All Categories");
+  const [selectedCategory, setSelectedCategory] = useState<string>(defaultCategory);
   const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -25,6 +33,12 @@ const CategoryDropdown = () => {
   const handleCategorySelect = (category: string) => {
     setSelectedCategory(category);
     setIsOpen(false);
+    if (onCategorySelect) {
+      const categoryId = category === "All Categories" 
+        ? "all"
+        : categories.find(c => c.name === category)?.id || "all";
+      onCategorySelect(categoryId);
+    }
   };
 
   return (

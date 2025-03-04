@@ -143,13 +143,15 @@ export const featuredServices = [
       rating: 4.9,
       reviews: 320,
       verified: true,
+      isFreelancer: false,
     },
     category: "Cleaning",
+    subcategory: "House Cleaning",
     price: 450,
     image: "https://images.unsplash.com/photo-1581578731548-c64695cc6952?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
     featured: true,
-    location: "South Africa", // Added location
-    isDigital: false, // Not a digital service
+    location: "South Africa",
+    isDigital: false,
   },
   {
     id: "2",
@@ -160,12 +162,14 @@ export const featuredServices = [
       rating: 4.7,
       reviews: 185,
       verified: true,
+      isFreelancer: true,
     },
-    category: "Landscaping",
+    category: "Outdoor",
+    subcategory: "Lawn Care",
     price: 850,
     image: "https://images.unsplash.com/photo-1598902108854-10e335adac99?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "South Africa", // Added location
-    isDigital: false, // Not a digital service
+    location: "South Africa",
+    isDigital: false,
   },
   {
     id: "3",
@@ -176,12 +180,14 @@ export const featuredServices = [
       rating: 4.8,
       reviews: 210,
       verified: true,
+      isFreelancer: false,
     },
     category: "Home Maintenance",
+    subcategory: "Electrical",
     price: 600,
     image: "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?q=80&w=2069&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "South Africa", // Added location
-    isDigital: false, // Not a digital service
+    location: "South Africa",
+    isDigital: false,
   },
   {
     id: "4",
@@ -192,12 +198,14 @@ export const featuredServices = [
       rating: 4.6,
       reviews: 150,
       verified: true,
+      isFreelancer: false,
     },
     category: "Moving",
+    subcategory: "Local/Long-Distance Moving Help",
     price: 1200,
     image: "https://images.unsplash.com/photo-1600518758237-5d6ac78b5345?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "South Africa", // Added location
-    isDigital: false, // Not a digital service
+    location: "South Africa",
+    isDigital: false,
   },
   {
     id: "5",
@@ -208,13 +216,15 @@ export const featuredServices = [
       rating: 4.9,
       reviews: 278,
       verified: true,
+      isFreelancer: false,
     },
-    category: "Digital Services",
+    category: "Digital",
+    subcategory: "Website Development",
     price: 3500,
     image: "https://images.unsplash.com/photo-1547658719-da2b51169166?q=80&w=2064&auto=format&fit=crop&ixlib=rb-4.0.3",
     featured: true,
-    location: "Global", // Digital service is global
-    isDigital: true, // This is a digital service
+    location: "Global",
+    isDigital: true,
   },
   {
     id: "6",
@@ -225,12 +235,14 @@ export const featuredServices = [
       rating: 4.8,
       reviews: 195,
       verified: true,
+      isFreelancer: true,
     },
-    category: "Digital Services",
+    category: "Digital",
+    subcategory: "App Development",
     price: 7800,
     image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "Global", // Digital service is global
-    isDigital: true, // This is a digital service
+    location: "Global",
+    isDigital: true,
   },
   {
     id: "7",
@@ -241,12 +253,14 @@ export const featuredServices = [
       rating: 4.7,
       reviews: 162,
       verified: true,
+      isFreelancer: true,
     },
-    category: "Digital Services",
+    category: "Digital",
+    subcategory: "Social Media Management",
     price: 2400,
     image: "https://images.unsplash.com/photo-1611926653458-09294b3142bf?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "Global", // Digital service is global
-    isDigital: true, // This is a digital service
+    location: "Global",
+    isDigital: true,
   },
   {
     id: "8",
@@ -257,12 +271,14 @@ export const featuredServices = [
       rating: 4.8,
       reviews: 204,
       verified: true,
+      isFreelancer: false,
     },
     category: "Home Maintenance",
+    subcategory: "Plumbing",
     price: 550,
     image: "https://images.unsplash.com/photo-1606274741559-d322310fa2b8?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
-    location: "South Africa", // Added location
-    isDigital: false, // Not a digital service
+    location: "South Africa",
+    isDigital: false,
   },
   {
     id: "9",
@@ -273,12 +289,68 @@ export const featuredServices = [
       rating: 4.9,
       reviews: 187,
       verified: true,
+      isFreelancer: true,
     },
-    category: "Digital Services",
+    category: "Digital",
+    subcategory: "Graphic Design",
     price: 1800,
     image: "https://images.unsplash.com/photo-1626785774573-4b799315345d?q=80&w=2071&auto=format&fit=crop&ixlib=rb-4.0.3",
     featured: true,
-    location: "Global", // Digital service is global
-    isDigital: true, // This is a digital service
+    location: "Global",
+    isDigital: true,
+  },
+  {
+    id: "10",
+    title: "Custom Content Writing & Copywriting",
+    provider: {
+      name: "WordCraft",
+      avatar: "https://images.unsplash.com/photo-1580489944761-15a19d654956?q=80&w=1961&auto=format&fit=crop&ixlib=rb-4.0.3",
+      rating: 4.9,
+      reviews: 134,
+      verified: true,
+      isFreelancer: true,
+    },
+    category: "Digital",
+    subcategory: "Content Writing",
+    price: 950,
+    image: "https://images.unsplash.com/photo-1455390582262-044cdead277a?q=80&w=2073&auto=format&fit=crop&ixlib=rb-4.0.3",
+    location: "Global",
+    isDigital: true,
+  },
+  {
+    id: "11",
+    title: "Photography & Photo Editing",
+    provider: {
+      name: "LensCraft",
+      avatar: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3",
+      rating: 4.8,
+      reviews: 97,
+      verified: true,
+      isFreelancer: true,
+    },
+    category: "Digital",
+    subcategory: "Photography",
+    price: 1500,
+    image: "https://images.unsplash.com/photo-1542038784456-1ea8e935640e?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+    location: "South Africa",
+    isDigital: true,
+  },
+  {
+    id: "12",
+    title: "Personal Tutoring - Mathematics",
+    provider: {
+      name: "MathMaster",
+      avatar: "https://images.unsplash.com/photo-1544717305-2782549b5136?q=80&w=1974&auto=format&fit=crop&ixlib=rb-4.0.3",
+      rating: 4.9,
+      reviews: 83,
+      verified: true,
+      isFreelancer: true,
+    },
+    category: "Personal",
+    subcategory: "Tutoring",
+    price: 350,
+    image: "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?q=80&w=2070&auto=format&fit=crop&ixlib=rb-4.0.3",
+    location: "South Africa",
+    isDigital: false,
   }
 ];
