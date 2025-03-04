@@ -4,6 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
 
+// Define the Profile interface based on what we're using in the application
+// This will work alongside the generated Database types without modifying them
 interface Profile {
   id: string;
   first_name: string | null;
