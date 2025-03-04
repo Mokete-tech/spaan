@@ -1,13 +1,14 @@
 
 import React, { useState, useEffect } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2 } from "lucide-react";
+import { Loader2, AlertCircle } from "lucide-react";
+import { getUserLocation } from "@/services/location-service";
 
 const Auth = () => {
   const [email, setEmail] = useState("");
@@ -16,6 +17,12 @@ const Auth = () => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [locationVerified, setLocationVerified] = useState(false);
+  const [locationError, setLocationError] = useState("");
+  const [userLocation, setUserLocation] = useState<{country: string, countryCode: string} | null>(null);
+  const [searchParams] = useSearchParams();
+  const redirectTo = searchParams.get("redirect") || "/";
+  
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -31,6 +38,27 @@ const Auth = () => {
     checkSession();
   }, [navigate]);
 
+  useEffect(() => {
+    // Detect user location
+    const detectLocation = async () => {
+      try {
+        const location = await getUserLocation();
+        setUserLocation({
+          country: location.country,
+          countryCode: location.countryCode
+        });
+        setLocationVerified(true);
+        console.log("User location detected:", location);
+      } catch (error) {
+        console.error("Error detecting location:", error);
+        setLocationError("Unable to verify your location. Please enable location services.");
+        setLocationVerified(false);
+      }
+    };
+    
+    detectLocation();
+  }, []);
+
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -43,22 +71,42 @@ const Auth = () => {
       return;
     }
     
+    if (!locationVerified) {
+      toast({
+        title: "Location verification required",
+        description: "We need to verify your location before signing in",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error, data } = await supabase.auth.signInWithPassword({
         email,
         password,
       });
       
       if (error) throw error;
+
+      // Store user location in metadata when signing in
+      if (data.user && userLocation) {
+        await supabase.auth.updateUser({
+          data: { 
+            last_sign_in_country: userLocation.country,
+            last_sign_in_country_code: userLocation.countryCode,
+            last_sign_in_time: new Date().toISOString()
+          }
+        });
+      }
       
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in"
       });
       
-      navigate("/");
+      navigate(redirectTo);
     } catch (error: any) {
       toast({
         title: "Error signing in",
@@ -91,6 +139,15 @@ const Auth = () => {
       return;
     }
     
+    if (!locationVerified) {
+      toast({
+        title: "Location verification required",
+        description: "We need to verify your location before creating an account",
+        variant: "destructive"
+      });
+      return;
+    }
+    
     setLoading(true);
     
     try {
@@ -101,6 +158,8 @@ const Auth = () => {
           data: {
             first_name: firstName,
             last_name: lastName,
+            sign_up_country: userLocation?.country || "Unknown",
+            sign_up_country_code: userLocation?.countryCode || "Unknown",
           },
         },
       });
@@ -113,7 +172,7 @@ const Auth = () => {
       });
       
       if (data.session) {
-        navigate("/");
+        navigate(redirectTo);
       }
     } catch (error: any) {
       toast({
@@ -137,6 +196,26 @@ const Auth = () => {
             Connect with trusted service providers
           </h2>
         </div>
+        
+        {locationError && (
+          <div className="bg-red-50 border border-red-200 rounded-md p-4 mb-6">
+            <div className="flex">
+              <AlertCircle className="h-5 w-5 text-red-500 mr-2" />
+              <div>
+                <h3 className="text-sm font-medium text-red-800">Location verification required</h3>
+                <p className="text-sm text-red-700 mt-1">{locationError}</p>
+              </div>
+            </div>
+          </div>
+        )}
+        
+        {userLocation && (
+          <div className="bg-green-50 border border-green-200 rounded-md p-4 mb-6">
+            <p className="text-sm text-green-700">
+              Your location: <strong>{userLocation.country}</strong>
+            </p>
+          </div>
+        )}
         
         <Tabs defaultValue="login" className="w-full">
           <TabsList className="grid w-full grid-cols-2 mb-4">
@@ -193,7 +272,7 @@ const Auth = () => {
                   <Button 
                     type="submit" 
                     className="w-full bg-spaan-primary hover:bg-spaan-primary/90"
-                    disabled={loading}
+                    disabled={loading || !locationVerified}
                   >
                     {loading ? (
                       <>
@@ -287,7 +366,7 @@ const Auth = () => {
                   <Button 
                     type="submit" 
                     className="w-full bg-spaan-primary hover:bg-spaan-primary/90"
-                    disabled={loading}
+                    disabled={loading || !locationVerified}
                   >
                     {loading ? (
                       <>

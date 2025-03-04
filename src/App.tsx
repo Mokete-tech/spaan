@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "@/context/AuthContext";
+import AdBanner from "@/components/ui/ad-banner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Explore from "./pages/Explore";
@@ -37,39 +38,45 @@ const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
 
 const AppRoutes = () => {
   return (
-    <Routes>
-      <Route path="/" element={<Index />} />
-      <Route path="/explore" element={<Explore />} />
-      <Route path="/services" element={<Services />} />
-      <Route path="/providers" element={<Providers />} />
-      <Route path="/auth" element={<Auth />} />
-      <Route path="/pricing" element={<Pricing />} />
+    <>
+      <AdBanner slot="top" showCloseButton={true} />
       
-      {/* Protected routes */}
-      <Route path="/profile" element={
-        <ProtectedRoute>
-          <Profile />
-        </ProtectedRoute>
-      } />
-      <Route path="/providers/apply" element={
-        <ProtectedRoute>
-          <ProviderApplication />
-        </ProtectedRoute>
-      } />
-      <Route path="/checkout" element={
-        <ProtectedRoute>
-          <Checkout />
-        </ProtectedRoute>
-      } />
-      <Route path="/cart" element={
-        <ProtectedRoute>
-          <Cart />
-        </ProtectedRoute>
-      } />
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/explore" element={<Explore />} />
+        <Route path="/services" element={<Services />} />
+        <Route path="/providers" element={<Providers />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/pricing" element={<Pricing />} />
+        
+        {/* Protected routes */}
+        <Route path="/profile" element={
+          <ProtectedRoute>
+            <Profile />
+          </ProtectedRoute>
+        } />
+        <Route path="/providers/apply" element={
+          <ProtectedRoute>
+            <ProviderApplication />
+          </ProtectedRoute>
+        } />
+        <Route path="/checkout" element={
+          <ProtectedRoute>
+            <Checkout />
+          </ProtectedRoute>
+        } />
+        <Route path="/cart" element={
+          <ProtectedRoute>
+            <Cart />
+          </ProtectedRoute>
+        } />
+        
+        {/* Catch-all route */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
       
-      {/* Catch-all route */}
-      <Route path="*" element={<NotFound />} />
-    </Routes>
+      <AdBanner slot="bottom" format="large-banner" className="md:hidden" showCloseButton={true} />
+    </>
   );
 };
 

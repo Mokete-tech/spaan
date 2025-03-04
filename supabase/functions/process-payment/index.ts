@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2"
+import { Stripe } from "https://esm.sh/stripe@11.18.0"
 
 // Cors headers for browser requests
 const corsHeaders = {
@@ -14,20 +15,73 @@ const supabase = createClient(
   Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? ""
 )
 
+// Initialize Stripe
+const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? ""
+const stripe = new Stripe(stripeSecretKey, {
+  apiVersion: '2023-10-16', // Use latest API version
+  httpClient: Stripe.createFetchHttpClient(),
+})
+
 // Mock payment processing - in a real app, integrate with a payment processor like Stripe
-const processPayment = async (amount: number, currency: string, paymentMethod: string) => {
-  // Simulate payment processing
-  await new Promise(resolve => setTimeout(resolve, 1000))
-  
-  // Generate a mock transaction ID
-  const mockTransactionId = `tr_${Date.now()}_${Math.floor(Math.random() * 1000)}`
-  
-  return {
-    success: true,
-    transaction_id: mockTransactionId,
-    amount,
-    currency,
-    payment_method: paymentMethod,
+const processPayment = async (amount: number, currency: string, paymentMethod: string, paymentDetails: any) => {
+  // For Stripe method
+  if (paymentMethod === "stripe") {
+    try {
+      // Create a payment intent
+      const paymentIntent = await stripe.paymentIntents.create({
+        amount: Math.round(amount * 100), // Stripe uses cents/smallest currency unit
+        currency: currency.toLowerCase(),
+        payment_method_types: ['card'],
+        metadata: {
+          integration: 'spaan-services',
+        },
+      })
+      
+      return {
+        success: true,
+        transaction_id: paymentIntent.id,
+        amount,
+        currency,
+        payment_method: paymentMethod,
+        client_secret: paymentIntent.client_secret,
+        stripe_data: {
+          payment_intent_id: paymentIntent.id,
+          status: paymentIntent.status,
+        }
+      }
+    } catch (error) {
+      console.error("Stripe payment error:", error)
+      return {
+        success: false,
+        error_message: error.message || "Stripe payment processing failed"
+      }
+    }
+  } 
+  // For PayPal method (mock for now)
+  else if (paymentMethod === "paypal") {
+    // In a real app, integrate with PayPal SDK
+    // Simulating mock integration for now
+    const mockTransactionId = `pp_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+    
+    return {
+      success: true,
+      transaction_id: mockTransactionId,
+      amount,
+      currency,
+      payment_method: paymentMethod,
+    }
+  }
+  // Default mock payment (legacy method)
+  else {
+    const mockTransactionId = `tr_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+    
+    return {
+      success: true,
+      transaction_id: mockTransactionId,
+      amount,
+      currency,
+      payment_method: paymentMethod,
+    }
   }
 }
 
@@ -43,7 +97,7 @@ const processSubscription = async (
 ) => {
   try {
     // Process the payment
-    const paymentResult = await processPayment(amount, currency, paymentMethod)
+    const paymentResult = await processPayment(amount, currency, paymentMethod, paymentDetails)
     
     if (!paymentResult.success) {
       throw new Error("Payment processing failed")
@@ -141,6 +195,7 @@ const processSubscription = async (
       transaction_id: paymentResult.transaction_id,
       subscription_action: subscriptionAction,
       message: `Subscription ${subscriptionAction} successfully`,
+      payment_data: paymentResult, // Include payment processor data like Stripe client_secret
     }
   } catch (error) {
     console.error("Subscription process error:", error)
@@ -158,11 +213,12 @@ const startEscrow = async (
   providerId: string,
   amount: number,
   currency: string,
-  paymentMethod: string
+  paymentMethod: string,
+  paymentDetails: any
 ) => {
   try {
     // Process the payment
-    const paymentResult = await processPayment(amount, currency, paymentMethod)
+    const paymentResult = await processPayment(amount, currency, paymentMethod, paymentDetails)
     
     if (!paymentResult.success) {
       throw new Error("Payment processing failed")
@@ -194,6 +250,7 @@ const startEscrow = async (
       escrow_id: paymentResult.transaction_id,
       status: "in_escrow",
       message: "Payment is now held in escrow",
+      payment_data: paymentResult, // Include payment processor data
     }
   } catch (error) {
     console.error("Escrow process error:", error)
@@ -261,6 +318,20 @@ const refundEscrow = async (transactionId: string, reason: string) => {
     if (transaction.status !== "in_escrow") {
       throw new Error(`Cannot refund payment. Current status: ${transaction.status}`)
     }
+
+    // If this was a Stripe payment and we have a payment intent, issue a refund via Stripe
+    if (transaction.payment_method === "stripe" && 
+        transaction.payment_details?.stripe_data?.payment_intent_id) {
+      try {
+        await stripe.refunds.create({
+          payment_intent: transaction.payment_details.stripe_data.payment_intent_id,
+          reason: 'requested_by_customer',
+        });
+      } catch (stripeError) {
+        console.error("Stripe refund error:", stripeError);
+        // Continue with updating the status even if Stripe fails
+      }
+    }
     
     // Update transaction status to refunded
     const { error: updateError } = await supabase
@@ -293,6 +364,32 @@ const refundEscrow = async (transactionId: string, reason: string) => {
   }
 }
 
+// Get Stripe payment intent client secret
+const createPaymentIntent = async (amount: number, currency: string) => {
+  try {
+    const paymentIntent = await stripe.paymentIntents.create({
+      amount: Math.round(amount * 100), // Stripe uses cents
+      currency: currency.toLowerCase(),
+      payment_method_types: ['card'],
+      metadata: {
+        integration: 'spaan-services',
+      },
+    });
+
+    return {
+      success: true,
+      clientSecret: paymentIntent.client_secret,
+      paymentIntentId: paymentIntent.id,
+    };
+  } catch (error) {
+    console.error("Error creating payment intent:", error);
+    return {
+      success: false,
+      message: error.message || "Failed to create payment intent",
+    };
+  }
+}
+
 serve(async (req) => {
   // Handle CORS preflight request
   if (req.method === "OPTIONS") {
@@ -317,7 +414,15 @@ serve(async (req) => {
         
       case "start_escrow":
         const { serviceId, buyerId, providerId } = data
-        result = await startEscrow(serviceId, buyerId, providerId, data.amount, data.currency, data.paymentMethod)
+        result = await startEscrow(
+          serviceId, 
+          buyerId, 
+          providerId, 
+          data.amount, 
+          data.currency, 
+          data.paymentMethod, 
+          data.paymentDetails || {}
+        )
         break
       
       case "release_escrow":
@@ -328,6 +433,10 @@ serve(async (req) => {
         result = await refundEscrow(data.transactionId, data.reason)
         break
       
+      case "create_payment_intent":
+        result = await createPaymentIntent(data.amount, data.currency)
+        break
+
       default:
         throw new Error("Invalid action")
     }
