@@ -46,7 +46,7 @@ const CategoryDropdown: React.FC<CategoryDropdownProps> = ({
       <button
         type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full md:w-60 px-4 py-3 bg-white border border-gray-200 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-spaan-primary/20"
+        className="flex items-center justify-between w-full md:w-52 px-4 py-3 bg-white border border-gray-200 rounded-md text-left focus:outline-none focus:ring-2 focus:ring-spaan-primary/20"
       >
         <span className="block truncate">{selectedCategory}</span>
         {isOpen ? (
