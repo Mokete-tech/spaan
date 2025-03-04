@@ -1,13 +1,24 @@
 
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { Search, User, Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/context/AuthContext";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { user, profile, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -17,6 +28,11 @@ const Navbar = () => {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  const handleLogout = async () => {
+    await signOut();
+    navigate("/");
+  };
 
   return (
     <header
@@ -59,15 +75,46 @@ const Navbar = () => {
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
-            <Button
-              variant="outline"
-              className="text-sm font-medium border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-            >
-              Sign In
-            </Button>
-            <Button className="bg-spaan-primary hover:bg-spaan-primary/90 text-white">
-              Join
-            </Button>
+            {user ? (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" className="border-spaan-primary">
+                    <User className="h-4 w-4 mr-2" />
+                    {profile?.first_name || "Account"}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/providers/apply")}>
+                    Become a Provider
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                    Sign Out
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            ) : (
+              <>
+                <Button
+                  variant="outline"
+                  className="text-sm font-medium border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
+                  onClick={() => navigate("/auth")}
+                >
+                  Sign In
+                </Button>
+                <Button 
+                  className="bg-spaan-primary hover:bg-spaan-primary/90 text-white"
+                  onClick={() => navigate("/auth?tab=register")}
+                >
+                  Join
+                </Button>
+              </>
+            )}
           </div>
 
           <Button
@@ -114,21 +161,51 @@ const Navbar = () => {
                 Providers
               </Link>
               <hr className="border-gray-200" />
-              <div className="flex flex-col space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Sign In
-                </Button>
-                <Button
-                  className="w-full justify-center bg-spaan-primary hover:bg-spaan-primary/90 text-white"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
-                  Join
-                </Button>
-              </div>
+              {user ? (
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
+                    onClick={() => {
+                      navigate("/profile");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    My Profile
+                  </Button>
+                  <Button
+                    className="w-full justify-center bg-red-500 hover:bg-red-600 text-white"
+                    onClick={() => {
+                      handleLogout();
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Sign Out
+                  </Button>
+                </div>
+              ) : (
+                <div className="space-y-3">
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
+                    onClick={() => {
+                      navigate("/auth");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Sign In
+                  </Button>
+                  <Button
+                    className="w-full justify-center bg-spaan-primary hover:bg-spaan-primary/90 text-white"
+                    onClick={() => {
+                      navigate("/auth?tab=register");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Join
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
