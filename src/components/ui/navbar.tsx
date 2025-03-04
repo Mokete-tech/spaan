@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Link, useNavigate } from "react-router-dom";
-import { Search, User, Menu, X } from "lucide-react";
+import { Search, User, Menu, X, ShoppingCart } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useAuth } from "@/context/AuthContext";
 import {
@@ -37,10 +37,10 @@ const Navbar = () => {
   return (
     <header
       className={cn(
-        "fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out py-4",
+        "fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out py-3",
         scrolled
-          ? "bg-white/90 backdrop-blur-md shadow-sm"
-          : "bg-transparent"
+          ? "bg-white/95 backdrop-blur-md shadow-md"
+          : "bg-white/90 shadow-sm"
       )}
     >
       <div className="container mx-auto px-4 md:px-6">
@@ -72,32 +72,55 @@ const Navbar = () => {
             >
               Providers
             </Link>
+            <Link
+              to="/pricing"
+              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
+            >
+              Pricing
+            </Link>
           </div>
 
           <div className="hidden md:flex items-center space-x-4">
             {user ? (
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="outline" className="border-spaan-primary">
-                    <User className="h-4 w-4 mr-2" />
-                    {profile?.first_name || "Account"}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>
-                    Profile
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/providers/apply")}>
-                    Become a Provider
-                  </DropdownMenuItem>
-                  <DropdownMenuSeparator />
-                  <DropdownMenuItem onClick={handleLogout} className="text-red-500">
-                    Sign Out
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
+              <div className="flex items-center space-x-3">
+                <Button 
+                  variant="outline" 
+                  size="icon"
+                  className="relative"
+                  onClick={() => navigate("/cart")}
+                >
+                  <ShoppingCart className="h-5 w-5" />
+                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
+                    0
+                  </span>
+                </Button>
+                
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="outline" className="border-spaan-primary">
+                      <User className="h-4 w-4 mr-2" />
+                      {profile?.first_name || "Account"}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+                      Profile
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/bookings")}>
+                      My Bookings
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate("/providers/apply")}>
+                      Become a Provider
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                      Sign Out
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
             ) : (
               <>
                 <Button
@@ -160,6 +183,13 @@ const Navbar = () => {
               >
                 Providers
               </Link>
+              <Link
+                to="/pricing"
+                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
+                onClick={() => setMobileMenuOpen(false)}
+              >
+                Pricing
+              </Link>
               <hr className="border-gray-200" />
               {user ? (
                 <div className="space-y-3">
@@ -172,6 +202,26 @@ const Navbar = () => {
                     }}
                   >
                     My Profile
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
+                    onClick={() => {
+                      navigate("/bookings");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    My Bookings
+                  </Button>
+                  <Button
+                    variant="outline"
+                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
+                    onClick={() => {
+                      navigate("/cart");
+                      setMobileMenuOpen(false);
+                    }}
+                  >
+                    Cart
                   </Button>
                   <Button
                     className="w-full justify-center bg-red-500 hover:bg-red-600 text-white"

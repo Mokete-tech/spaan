@@ -13,6 +13,9 @@ import Providers from "./pages/Providers";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import ProviderApplication from "./pages/ProviderApplication";
+import Pricing from "./pages/Pricing";
+import Checkout from "./pages/Checkout";
+import Cart from "./pages/Cart";
 import { useAuth } from "@/context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -40,6 +43,7 @@ const AppRoutes = () => {
       <Route path="/services" element={<Services />} />
       <Route path="/providers" element={<Providers />} />
       <Route path="/auth" element={<Auth />} />
+      <Route path="/pricing" element={<Pricing />} />
       
       {/* Protected routes */}
       <Route path="/profile" element={
@@ -50,6 +54,16 @@ const AppRoutes = () => {
       <Route path="/providers/apply" element={
         <ProtectedRoute>
           <ProviderApplication />
+        </ProtectedRoute>
+      } />
+      <Route path="/checkout" element={
+        <ProtectedRoute>
+          <Checkout />
+        </ProtectedRoute>
+      } />
+      <Route path="/cart" element={
+        <ProtectedRoute>
+          <Cart />
         </ProtectedRoute>
       } />
       
