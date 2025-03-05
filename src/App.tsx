@@ -17,6 +17,7 @@ import ProviderApplication from "./pages/ProviderApplication";
 import Pricing from "./pages/Pricing";
 import Checkout from "./pages/Checkout";
 import Cart from "./pages/Cart";
+import GigPosting from "./pages/GigPosting";
 import { useAuth } from "@/context/AuthContext";
 
 const queryClient = new QueryClient();
@@ -48,6 +49,7 @@ const AppRoutes = () => {
         <Route path="/providers" element={<Providers />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/pricing" element={<Pricing />} />
+        <Route path="/gigs" element={<GigPosting />} />
         
         {/* Protected routes */}
         <Route path="/profile" element={

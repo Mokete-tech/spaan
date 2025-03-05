@@ -1,267 +1,79 @@
-
-import React, { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Link, useNavigate } from "react-router-dom";
-import { Search, User, Menu, X, ShoppingCart } from "lucide-react";
-import { cn } from "@/lib/utils";
-import { useAuth } from "@/context/AuthContext";
+import React from "react";
+import { Link } from "react-router-dom";
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  NavigationMenu,
+  NavigationMenuItem,
+  NavigationMenuList,
+} from "@/components/ui/navigation-menu";
+import { Button } from "@/components/ui/button";
+import { useAuth } from "@/context/AuthContext";
 
 const Navbar = () => {
-  const [scrolled, setScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const { user, profile, signOut } = useAuth();
-  const navigate = useNavigate();
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 10);
-    };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const handleLogout = async () => {
-    await signOut();
-    navigate("/");
-  };
+  const { user, signOut } = useAuth();
 
   return (
-    <header
-      className={cn(
-        "fixed top-0 left-0 w-full z-50 transition-all duration-300 ease-in-out py-3",
-        scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-md"
-          : "bg-white/90 shadow-sm"
-      )}
-    >
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="flex items-center justify-between">
-          <Link
-            to="/"
-            className="flex items-center space-x-2"
-            aria-label="Spaan logo"
-          >
-            <span className="font-bold text-2xl text-spaan-primary">Spaan</span>
+    <div className="border-b bg-white sticky top-0 z-50">
+      <div className="container py-4">
+        <div className="md:flex md:justify-between md:items-center">
+          <Link to="/" className="font-bold text-2xl">
+            Helpers
           </Link>
 
-          <div className="hidden md:flex items-center space-x-6">
-            <Link
-              to="/explore"
-              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
-            >
-              Explore
-            </Link>
-            <Link
-              to="/services"
-              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
-            >
-              Services
-            </Link>
-            <Link
-              to="/providers"
-              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
-            >
-              Providers
-            </Link>
-            <Link
-              to="/pricing"
-              className="text-sm font-semibold text-spaan-primary hover:text-spaan-primary/80 transition-colors"
-            >
-              Pricing
-            </Link>
-          </div>
+          <NavigationMenu>
+            <NavigationMenuList className="md:flex md:items-center">
+              <NavigationMenuItem>
+                <Link to="/" className="nav-link">
+                  Explore
+                </Link>
+              </NavigationMenuItem>
 
-          <div className="hidden md:flex items-center space-x-4">
-            {user ? (
-              <div className="flex items-center space-x-3">
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="relative"
-                  onClick={() => navigate("/cart")}
-                >
-                  <ShoppingCart className="h-5 w-5" />
-                  <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full h-5 w-5 flex items-center justify-center">
-                    0
-                  </span>
-                </Button>
-                
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="outline" className="border-spaan-primary">
-                      <User className="h-4 w-4 mr-2" />
-                      {profile?.first_name || "Account"}
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/profile")}>
+              <NavigationMenuItem>
+                <Link to="/services" className="nav-link">
+                  Services
+                </Link>
+              </NavigationMenuItem>
+
+              <NavigationMenuItem>
+                <Link to="/providers" className="nav-link">
+                  Providers
+                </Link>
+              </NavigationMenuItem>
+              
+              <NavigationMenuItem>
+                <Link to="/gigs" className="nav-link">
+                  Post a Gig
+                </Link>
+              </NavigationMenuItem>
+
+              {user ? (
+                <>
+                  <NavigationMenuItem>
+                    <Link to="/profile" className="nav-link">
                       Profile
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/bookings")}>
-                      My Bookings
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => navigate("/providers/apply")}>
-                      Become a Provider
-                    </DropdownMenuItem>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={handleLogout} className="text-red-500">
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Button variant="outline" size="sm" onClick={signOut}>
                       Sign Out
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            ) : (
-              <>
-                <Button
-                  variant="outline"
-                  className="text-sm font-medium border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                  onClick={() => navigate("/auth")}
-                >
-                  Sign In
-                </Button>
-                <Button 
-                  className="bg-spaan-primary hover:bg-spaan-primary/90 text-white"
-                  onClick={() => navigate("/auth?tab=register")}
-                >
-                  Join
-                </Button>
-              </>
-            )}
-          </div>
-
-          <Button
-            variant="ghost"
-            size="icon"
-            className="md:hidden text-spaan-primary"
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            {mobileMenuOpen ? (
-              <X className="h-6 w-6" />
-            ) : (
-              <Menu className="h-6 w-6" />
-            )}
-          </Button>
+                    </Button>
+                  </NavigationMenuItem>
+                </>
+              ) : (
+                <NavigationMenuItem>
+                  <Link to="/auth">
+                    <Button variant="outline" size="sm">
+                      Sign In
+                    </Button>
+                  </Link>
+                </NavigationMenuItem>
+              )}
+            </NavigationMenuList>
+          </NavigationMenu>
         </div>
       </div>
-
-      {/* Mobile menu */}
-      {mobileMenuOpen && (
-        <div className="md:hidden">
-          <div className="fixed inset-0 z-40 bg-black/40" onClick={() => setMobileMenuOpen(false)}></div>
-          <div className="absolute top-16 right-0 z-50 w-full bg-white shadow-lg rounded-b-lg overflow-hidden fade-in">
-            <div className="flex flex-col py-4 px-6 space-y-4">
-              <Link
-                to="/explore"
-                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Explore
-              </Link>
-              <Link
-                to="/services"
-                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Services
-              </Link>
-              <Link
-                to="/providers"
-                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Providers
-              </Link>
-              <Link
-                to="/pricing"
-                className="py-2 text-base font-medium text-spaan-primary hover:text-spaan-primary/80"
-                onClick={() => setMobileMenuOpen(false)}
-              >
-                Pricing
-              </Link>
-              <hr className="border-gray-200" />
-              {user ? (
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                    onClick={() => {
-                      navigate("/profile");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    My Profile
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                    onClick={() => {
-                      navigate("/bookings");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    My Bookings
-                  </Button>
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                    onClick={() => {
-                      navigate("/cart");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Cart
-                  </Button>
-                  <Button
-                    className="w-full justify-center bg-red-500 hover:bg-red-600 text-white"
-                    onClick={() => {
-                      handleLogout();
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Sign Out
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Button
-                    variant="outline"
-                    className="w-full justify-center border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10"
-                    onClick={() => {
-                      navigate("/auth");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Sign In
-                  </Button>
-                  <Button
-                    className="w-full justify-center bg-spaan-primary hover:bg-spaan-primary/90 text-white"
-                    onClick={() => {
-                      navigate("/auth?tab=register");
-                      setMobileMenuOpen(false);
-                    }}
-                  >
-                    Join
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      )}
-    </header>
+    </div>
   );
 };
 
 export default Navbar;
+

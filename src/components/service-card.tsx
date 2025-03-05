@@ -2,9 +2,10 @@
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Star, ShieldCheck, MapPin, Heart } from "lucide-react";
+import { Star, ShieldCheck, MapPin, Heart, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
+import { useNavigate } from "react-router-dom";
 
 interface ServiceCardProps {
   id: string;
@@ -40,6 +41,7 @@ const ServiceCard = ({
 }: ServiceCardProps) => {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [favorite, setFavorite] = useState(false);
+  const navigate = useNavigate();
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: currency }).format(price);
@@ -134,9 +136,13 @@ const ServiceCard = ({
         </div>
       </CardFooter>
       
-      <div className="px-4 pb-4">
-        <Button className="w-full bg-blue-500 hover:bg-blue-600">
+      <div className="px-4 pb-4 grid grid-cols-2 gap-2">
+        <Button className="bg-blue-500 hover:bg-blue-600">
           Get Help
+        </Button>
+        <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+          <MessageSquare className="h-4 w-4 mr-2" />
+          Contact
         </Button>
       </div>
     </Card>
