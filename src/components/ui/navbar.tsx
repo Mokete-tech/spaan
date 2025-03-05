@@ -17,7 +17,7 @@ const Navbar = () => {
       <div className="container py-4">
         <div className="md:flex md:justify-between md:items-center">
           <Link to="/" className="font-bold text-2xl">
-            Helpers
+            Spaan
           </Link>
 
           <NavigationMenu>
@@ -29,14 +29,14 @@ const Navbar = () => {
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/services" className="nav-link">
-                  Services
+                <Link to="/gigs" className="nav-link">
+                  Find Gigs
                 </Link>
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <Link to="/gigs" className="nav-link">
-                  Post a Gig
+                <Link to="/post-job" className="nav-link">
+                  Post a Job
                 </Link>
               </NavigationMenuItem>
 

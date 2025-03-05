@@ -28,14 +28,14 @@ const Services = () => {
     <main className="min-h-screen bg-spaan-secondary">
       <Navbar />
       <div className="container mx-auto px-4 md:px-6 pt-32 pb-16">
-        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-spaan-primary">All Services</h1>
+        <h1 className="text-3xl md:text-4xl font-bold mb-6 text-spaan-primary">Find Gigs</h1>
         
         <div className="flex flex-col md:flex-row gap-4 mb-8">
           <div className="relative flex-grow">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
             <input 
               type="text" 
-              placeholder="Search for services..." 
+              placeholder="Search for gigs..." 
               className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-spaan-primary"
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -91,19 +91,19 @@ const Services = () => {
             )}
             
             <div className="mt-6">
-              <h3 className="text-md font-medium mb-3">Service Types</h3>
+              <h3 className="text-md font-medium mb-3">Job Types</h3>
               <div className="space-y-2">
                 <label className="flex items-center space-x-2">
                   <input type="checkbox" className="rounded text-spaan-primary focus:ring-spaan-primary" />
-                  <span>Local Services</span>
+                  <span>Local Jobs</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input type="checkbox" className="rounded text-spaan-primary focus:ring-spaan-primary" />
-                  <span>Digital Services</span>
+                  <span>Remote Jobs</span>
                 </label>
                 <label className="flex items-center space-x-2">
                   <input type="checkbox" className="rounded text-spaan-primary focus:ring-spaan-primary" />
-                  <span>Freelancers</span>
+                  <span>Urgent Jobs</span>
                 </label>
               </div>
             </div>
@@ -114,7 +114,7 @@ const Services = () => {
               <h2 className="text-2xl font-bold mb-6">
                 {activeCategory 
                   ? categories.find(c => c.id === activeCategory)?.name 
-                  : 'All Services'}
+                  : 'All Gigs'}
                 {activeSubcategory && ` - ${activeSubcategory}`}
               </h2>
               
@@ -135,7 +135,7 @@ const Services = () => {
                           <p className="text-sm text-gray-500 mt-1">{service.category}</p>
                         </div>
                         <Badge variant={service.isDigital ? "outline" : "default"} className="ml-2">
-                          {service.isDigital ? "Digital" : "Local"}
+                          {service.isDigital ? "Remote" : "Local"}
                         </Badge>
                       </div>
                       <div className="flex items-center mt-4 justify-between">
@@ -159,7 +159,7 @@ const Services = () => {
               {featuredServices.length === 0 && (
                 <div className="text-center py-12">
                   <p className="text-gray-600 mb-6">
-                    No services found matching your criteria. Try adjusting your filters.
+                    No gigs found matching your criteria. Try adjusting your filters.
                   </p>
                   <Button 
                     variant="outline" 

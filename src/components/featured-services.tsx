@@ -44,9 +44,9 @@ const FeaturedServices = () => {
     <section className="py-16 bg-gray-50">
       <div className="container mx-auto px-4 md:px-6">
         <div className="mb-10 text-center">
-          <h2 className="text-3xl font-bold mb-4">Popular Services</h2>
+          <h2 className="text-3xl font-bold mb-4">Popular Gigs</h2>
           <p className="text-lg text-gray-600 max-w-2xl mx-auto mb-8">
-            Find help with everyday tasks or specialized skills
+            Find available gigs posted by people who need help
           </p>
 
           <div className="flex flex-wrap justify-center gap-2 mb-6">
@@ -73,14 +73,14 @@ const FeaturedServices = () => {
             <div className="mt-2 flex justify-center items-center space-x-2">
               <Globe className="h-4 w-4 text-blue-500" />
               <span className="text-sm text-gray-600">
-                {showAllServices ? "Showing all services" : `Showing services available in ${userLocation.country}`}
+                {showAllServices ? "Showing all gigs" : `Showing gigs available in ${userLocation.country}`}
               </span>
               <Badge 
                 className="ml-2 cursor-pointer" 
                 variant="outline"
                 onClick={() => setShowAllServices(!showAllServices)}
               >
-                {showAllServices ? "Show Local Only" : "Show All Services"}
+                {showAllServices ? "Show Local Only" : "Show All Gigs"}
               </Badge>
             </div>
           )}
@@ -107,25 +107,25 @@ const FeaturedServices = () => {
             {filteredServices.length === 0 && (
               <div className="text-center py-16 bg-white rounded-xl shadow-sm">
                 <Globe className="h-12 w-12 text-blue-500 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold mb-2">No services found</h3>
+                <h3 className="text-xl font-semibold mb-2">No gigs found</h3>
                 <p className="text-gray-600 mb-6">
                   {activeCategory 
-                    ? `No ${activeCategory} services available in your area. Try showing all services.`
-                    : 'No services available in your area. Try showing all services.'}
+                    ? `No ${activeCategory} gigs available in your area. Try showing all gigs.`
+                    : 'No gigs available in your area. Try showing all gigs.'}
                 </p>
                 <Button 
                   onClick={() => setShowAllServices(true)}
                   className="bg-blue-500 hover:bg-blue-600"
                 >
-                  Show All Services
+                  Show All Gigs
                 </Button>
               </div>
             )}
             
             <div className="mt-8 text-center">
-              <Link to="/services">
+              <Link to="/gigs">
                 <Button className="bg-blue-500 hover:bg-blue-600">
-                  View All Services
+                  View All Gigs
                 </Button>
               </Link>
             </div>
@@ -137,10 +137,10 @@ const FeaturedServices = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex items-center mb-4">
               <Shield className="h-8 w-8 text-green-500 mr-3" />
-              <h3 className="text-xl font-bold">Verified Providers</h3>
+              <h3 className="text-xl font-bold">Verified Jobs</h3>
             </div>
             <p className="text-gray-600">
-              Every helper on our platform passes background checks and identity verification for your peace of mind.
+              Every job on our platform is verified to ensure quality and legitimacy for your peace of mind.
             </p>
           </div>
           
@@ -150,7 +150,7 @@ const FeaturedServices = () => {
               <h3 className="text-xl font-bold">Secure Payments</h3>
             </div>
             <p className="text-gray-600">
-              Only pay when the job is done right. Your payment is held securely until you approve the work.
+              Only pay when you're satisfied with the work. Your payment is held securely until you approve completion.
             </p>
           </div>
           

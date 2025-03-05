@@ -43,10 +43,10 @@ const HeroSection = () => {
       <div className="container mx-auto px-4 md:px-6 relative z-10">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold mb-4 text-white opacity-100">
-            Find Help For Any Task, Big or Small
+            Find Gigs or Post a Job
           </h1>
           <p className="text-xl text-white/90 mb-6 opacity-100">
-            Connect with skilled locals and online freelancers in minutes
+            Connect with people needing help or post your own job
           </p>
           
           {/* Location Indicator */}
@@ -68,7 +68,7 @@ const HeroSection = () => {
                 <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                 <Input
                   type="text"
-                  placeholder="What do you need help with?"
+                  placeholder="What kind of gig are you looking for?"
                   className="pl-10 py-6 rounded-md w-full border border-gray-200"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -81,7 +81,7 @@ const HeroSection = () => {
                 type="submit" 
                 className="bg-spaan-primary hover:bg-spaan-primary/90 text-white py-6 px-6 rounded-md"
               >
-                Find Help
+                Find Gigs
               </Button>
             </form>
           </div>
@@ -90,7 +90,7 @@ const HeroSection = () => {
           <div className="mt-6 flex flex-wrap justify-center gap-2">
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
               <Shield className="h-4 w-4 text-green-400" />
-              <span className="text-sm text-white">Trusted & Verified Helpers</span>
+              <span className="text-sm text-white">Trusted & Verified Jobs</span>
             </div>
             
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
@@ -100,7 +100,7 @@ const HeroSection = () => {
             
             <div className="flex items-center space-x-2 bg-white/10 backdrop-blur-sm py-2 px-4 rounded-full">
               <Globe className="h-4 w-4 text-blue-400" />
-              <span className="text-sm text-white">Local & Online Services</span>
+              <span className="text-sm text-white">Local & Online Jobs</span>
             </div>
           </div>
           
