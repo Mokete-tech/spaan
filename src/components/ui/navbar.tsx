@@ -1,3 +1,4 @@
+
 import React from "react";
 import { Link } from "react-router-dom";
 import {
@@ -23,19 +24,13 @@ const Navbar = () => {
             <NavigationMenuList className="md:flex md:items-center">
               <NavigationMenuItem>
                 <Link to="/" className="nav-link">
-                  Explore
+                  Home
                 </Link>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
                 <Link to="/services" className="nav-link">
                   Services
-                </Link>
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
-                <Link to="/providers" className="nav-link">
-                  Providers
                 </Link>
               </NavigationMenuItem>
               
@@ -76,4 +71,3 @@ const Navbar = () => {
 };
 
 export default Navbar;
-

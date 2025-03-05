@@ -8,9 +8,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import AdBanner from "@/components/ui/ad-banner";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
-import Explore from "./pages/Explore";
 import Services from "./pages/Services";
-import Providers from "./pages/Providers";
 import Auth from "./pages/Auth";
 import Profile from "./pages/Profile";
 import ProviderApplication from "./pages/ProviderApplication";
@@ -44,9 +42,7 @@ const AppRoutes = () => {
       
       <Routes>
         <Route path="/" element={<Index />} />
-        <Route path="/explore" element={<Explore />} />
         <Route path="/services" element={<Services />} />
-        <Route path="/providers" element={<Providers />} />
         <Route path="/auth" element={<Auth />} />
         <Route path="/pricing" element={<Pricing />} />
         <Route path="/gigs" element={<GigPosting />} />

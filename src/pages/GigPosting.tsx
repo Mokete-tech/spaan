@@ -1,5 +1,5 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
@@ -12,7 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import AdBanner from "@/components/ui/ad-banner";
-import { MapPin, Clock, DollarSign, Send } from "lucide-react";
+import { MapPin, Clock, DollarSign, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
 const GigPosting = () => {
@@ -31,6 +31,15 @@ const GigPosting = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [postedGigs, setPostedGigs] = useState([]);
   const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    // Simulating loading of user's posted gigs
+    const timer = setTimeout(() => {
+      setLoading(false);
+    }, 1500);
+    
+    return () => clearTimeout(timer);
+  }, []);
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -66,7 +75,9 @@ const GigPosting = () => {
     setIsSubmitting(true);
 
     try {
-      // Submit to Supabase (this will be implemented later)
+      // Submit to Supabase (placeholder for now)
+      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      
       toast({
         title: "Gig posted successfully!",
         description: "Service providers will be able to contact you soon.",
@@ -106,20 +117,18 @@ const GigPosting = () => {
   return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
-      <div className="container mx-auto px-4 py-8">
-        <AdBanner slot="top" showCloseButton={true} />
-        
+      <div className="container mx-auto px-4 py-8 pt-20">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Post Your Gig Request</h1>
+          <h1 className="text-3xl font-bold mb-2">Post Your Job Request</h1>
           <p className="text-gray-600">
-            Describe what you need help with and providers will contact you with offers
+            Describe what you need help with and skilled helpers will contact you with offers
           </p>
         </div>
         
         <Tabs defaultValue="post" className="max-w-3xl mx-auto">
           <TabsList className="grid grid-cols-2 mb-8">
-            <TabsTrigger value="post">Post a New Gig</TabsTrigger>
-            <TabsTrigger value="my-gigs">My Posted Gigs</TabsTrigger>
+            <TabsTrigger value="post">Post a New Job</TabsTrigger>
+            <TabsTrigger value="my-gigs">My Posted Jobs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="post">
@@ -251,8 +260,17 @@ const GigPosting = () => {
                   </div>
                   
                   <Button type="submit" className="w-full" disabled={isSubmitting}>
-                    <Send className="h-4 w-4 mr-2" />
-                    {isSubmitting ? "Posting..." : "Post Gig Request"}
+                    {isSubmitting ? (
+                      <>
+                        <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                        Posting...
+                      </>
+                    ) : (
+                      <>
+                        <Send className="h-4 w-4 mr-2" />
+                        Post Job Request
+                      </>
+                    )}
                   </Button>
                 </form>
               </CardContent>
@@ -271,26 +289,27 @@ const GigPosting = () => {
           <TabsContent value="my-gigs">
             <Card>
               <CardHeader>
-                <CardTitle>My Posted Gigs</CardTitle>
+                <CardTitle>My Posted Jobs</CardTitle>
                 <CardDescription>
-                  Review and manage your previously posted gig requests
+                  Review and manage your previously posted job requests
                 </CardDescription>
               </CardHeader>
               
               <CardContent>
                 {loading ? (
                   <div className="text-center py-8">
-                    <p>Loading your gigs...</p>
+                    <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
+                    <p>Loading your job requests...</p>
                   </div>
                 ) : postedGigs.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500">You haven't posted any gigs yet</p>
+                    <p className="text-gray-500 mb-4">You haven't posted any jobs yet</p>
                     <Button 
                       variant="outline" 
-                      className="mt-4"
+                      className="mt-2"
                       onClick={switchToPostTab}
                     >
-                      Post Your First Gig
+                      Post Your First Job
                     </Button>
                   </div>
                 ) : (
