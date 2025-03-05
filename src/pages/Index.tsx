@@ -1,6 +1,5 @@
 
 import React from "react";
-import Navbar from "@/components/ui/navbar";
 import HeroSection from "@/components/hero-section";
 import FeaturedServices from "@/components/featured-services";
 import { Toaster } from "sonner";
@@ -11,7 +10,6 @@ import { Briefcase, DollarSign, Clock, Globe, Users, HeartHandshake, Search } fr
 const Index = () => {
   return (
     <main className="min-h-screen bg-white">
-      <Navbar />
       <HeroSection />
       <FeaturedServices />
       

@@ -1,5 +1,5 @@
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   NavigationMenu,
@@ -8,34 +8,53 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
+import { Menu } from "lucide-react";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
 
   return (
     <div className="border-b bg-white sticky top-0 z-50">
       <div className="container py-4">
-        <div className="md:flex md:justify-between md:items-center">
+        <div className="flex justify-between items-center">
           <Link to="/" className="font-bold text-2xl">
             Spaan
           </Link>
 
-          <NavigationMenu>
-            <NavigationMenuList className="md:flex md:items-center">
+          {/* Mobile menu button */}
+          <div className="md:hidden">
+            <Button 
+              variant="ghost" 
+              size="icon" 
+              onClick={toggleMobileMenu}
+              aria-label="Toggle menu"
+            >
+              <Menu className="h-6 w-6" />
+            </Button>
+          </div>
+
+          {/* Desktop Navigation */}
+          <NavigationMenu className="hidden md:block">
+            <NavigationMenuList className="flex items-center space-x-6">
               <NavigationMenuItem>
-                <Link to="/" className="nav-link">
+                <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
                   Home
                 </Link>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/gigs" className="nav-link">
+                <Link to="/gigs" className="text-gray-700 hover:text-blue-600 transition-colors">
                   Find Gigs
                 </Link>
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <Link to="/post-job" className="nav-link">
+                <Link to="/post-job" className="text-gray-700 hover:text-blue-600 transition-colors">
                   Post a Job
                 </Link>
               </NavigationMenuItem>
@@ -43,7 +62,7 @@ const Navbar = () => {
               {user ? (
                 <>
                   <NavigationMenuItem>
-                    <Link to="/profile" className="nav-link">
+                    <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition-colors">
                       Profile
                     </Link>
                   </NavigationMenuItem>
@@ -64,6 +83,67 @@ const Navbar = () => {
               )}
             </NavigationMenuList>
           </NavigationMenu>
+          
+          {/* Mobile Navigation */}
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-md p-4 z-50 border-b">
+              <nav className="flex flex-col space-y-4">
+                <Link 
+                  to="/" 
+                  className="text-gray-700 hover:text-blue-600 transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Home
+                </Link>
+                <Link 
+                  to="/gigs" 
+                  className="text-gray-700 hover:text-blue-600 transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Find Gigs
+                </Link>
+                <Link 
+                  to="/post-job" 
+                  className="text-gray-700 hover:text-blue-600 transition-colors py-2"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                >
+                  Post a Job
+                </Link>
+                {user ? (
+                  <>
+                    <Link 
+                      to="/profile" 
+                      className="text-gray-700 hover:text-blue-600 transition-colors py-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      Profile
+                    </Link>
+                    <Button 
+                      variant="outline" 
+                      size="sm" 
+                      onClick={() => {
+                        signOut();
+                        setIsMobileMenuOpen(false);
+                      }}
+                      className="w-full"
+                    >
+                      Sign Out
+                    </Button>
+                  </>
+                ) : (
+                  <Link 
+                    to="/auth" 
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="w-full"
+                  >
+                    <Button variant="outline" size="sm" className="w-full">
+                      Sign In
+                    </Button>
+                  </Link>
+                )}
+              </nav>
+            </div>
+          )}
         </div>
       </div>
     </div>
