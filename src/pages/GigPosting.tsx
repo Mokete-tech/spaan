@@ -95,6 +95,14 @@ const GigPosting = () => {
     }
   };
 
+  // Function to switch to Post tab
+  const switchToPostTab = () => {
+    const postTabTrigger = document.querySelector('[data-value="post"]') as HTMLElement | null;
+    if (postTabTrigger) {
+      postTabTrigger.click();
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       <Navbar />
@@ -280,7 +288,7 @@ const GigPosting = () => {
                     <Button 
                       variant="outline" 
                       className="mt-4"
-                      onClick={() => document.querySelector('[data-value="post"]')?.click()}
+                      onClick={switchToPostTab}
                     >
                       Post Your First Gig
                     </Button>
