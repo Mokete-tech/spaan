@@ -6,6 +6,7 @@ import { Star, ShieldCheck, MapPin, Heart, MessageSquare } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
+import { useToast } from "@/hooks/use-toast";
 
 interface ServiceCardProps {
   id: string;
@@ -42,9 +43,22 @@ const ServiceCard = ({
   const [imageLoaded, setImageLoaded] = useState(false);
   const [favorite, setFavorite] = useState(false);
   const navigate = useNavigate();
+  const { toast } = useToast();
 
   const formatPrice = (price: number, currency: string) => {
     return new Intl.NumberFormat('en-ZA', { style: 'currency', currency: currency }).format(price);
+  };
+
+  const handleGetHelpClick = () => {
+    navigate(`/checkout?gigId=${id}`);
+  };
+
+  const handleContactClick = () => {
+    toast({
+      title: "Contact initiated",
+      description: `You've requested to contact ${provider.name}`,
+    });
+    // In a real app, this would open a chat or messaging system
   };
 
   return (
@@ -137,10 +151,17 @@ const ServiceCard = ({
       </CardFooter>
       
       <div className="px-4 pb-4 grid grid-cols-2 gap-2">
-        <Button className="bg-blue-500 hover:bg-blue-600">
+        <Button 
+          className="bg-blue-500 hover:bg-blue-600"
+          onClick={handleGetHelpClick}
+        >
           Get Help
         </Button>
-        <Button variant="outline" className="border-blue-300 text-blue-600 hover:bg-blue-50">
+        <Button 
+          variant="outline" 
+          className="border-blue-300 text-blue-600 hover:bg-blue-50"
+          onClick={handleContactClick}
+        >
           <MessageSquare className="h-4 w-4 mr-2" />
           Contact
         </Button>

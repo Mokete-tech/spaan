@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/context/AuthContext";
-import { Menu } from "lucide-react";
+import { Menu, ShoppingCart } from "lucide-react";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
@@ -42,19 +42,19 @@ const Navbar = () => {
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList className="flex items-center space-x-6">
               <NavigationMenuItem>
-                <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors">
+                <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                   Home
                 </Link>
               </NavigationMenuItem>
 
               <NavigationMenuItem>
-                <Link to="/gigs" className="text-gray-700 hover:text-blue-600 transition-colors">
+                <Link to="/gigs" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                   Find Gigs
                 </Link>
               </NavigationMenuItem>
               
               <NavigationMenuItem>
-                <Link to="/post-job" className="text-gray-700 hover:text-blue-600 transition-colors">
+                <Link to="/post-job" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                   Post a Job
                 </Link>
               </NavigationMenuItem>
@@ -62,7 +62,12 @@ const Navbar = () => {
               {user ? (
                 <>
                   <NavigationMenuItem>
-                    <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition-colors">
+                    <Link to="/cart" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
+                      <ShoppingCart className="h-5 w-5" />
+                    </Link>
+                  </NavigationMenuItem>
+                  <NavigationMenuItem>
+                    <Link to="/profile" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                       Profile
                     </Link>
                   </NavigationMenuItem>
@@ -111,6 +116,16 @@ const Navbar = () => {
                 </Link>
                 {user ? (
                   <>
+                    <Link 
+                      to="/cart" 
+                      className="text-gray-700 hover:text-blue-600 transition-colors py-2"
+                      onClick={() => setIsMobileMenuOpen(false)}
+                    >
+                      <div className="flex items-center">
+                        <ShoppingCart className="h-5 w-5 mr-2" />
+                        <span>Cart</span>
+                      </div>
+                    </Link>
                     <Link 
                       to="/profile" 
                       className="text-gray-700 hover:text-blue-600 transition-colors py-2"

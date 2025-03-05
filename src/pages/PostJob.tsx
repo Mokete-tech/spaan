@@ -3,7 +3,6 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
-import Navbar from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -11,11 +10,10 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import AdBanner from "@/components/ui/ad-banner";
 import { MapPin, Clock, DollarSign, Send, Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
-const GigPosting = () => {
+const PostJob = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
   const { user } = useAuth();
@@ -29,11 +27,11 @@ const GigPosting = () => {
     isRemote: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [postedGigs, setPostedGigs] = useState([]);
+  const [postedJobs, setPostedJobs] = useState([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating loading of user's posted gigs
+    // Simulating loading of user's posted jobs
     const timer = setTimeout(() => {
       setLoading(false);
     }, 1500);
@@ -58,14 +56,14 @@ const GigPosting = () => {
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
-  // Submit gig posting
+  // Submit job posting
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to post a gig request",
+        description: "Please sign in to post a job",
         variant: "destructive"
       });
       navigate("/auth");
@@ -79,8 +77,8 @@ const GigPosting = () => {
       await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
       
       toast({
-        title: "Gig posted successfully!",
-        description: "Service providers will be able to contact you soon.",
+        title: "Job posted successfully!",
+        description: "Helpers will be able to contact you soon.",
       });
       
       // Reset form after successful submission
@@ -95,9 +93,9 @@ const GigPosting = () => {
       });
       
     } catch (error) {
-      console.error("Error posting gig:", error);
+      console.error("Error posting job:", error);
       toast({
-        title: "Failed to post gig",
+        title: "Failed to post job",
         description: "Please try again later",
         variant: "destructive"
       });
@@ -116,10 +114,9 @@ const GigPosting = () => {
 
   return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      <div className="container mx-auto px-4 py-8 pt-20">
+      <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Post Your Job Request</h1>
+          <h1 className="text-3xl font-bold mb-2">Post Your Job</h1>
           <p className="text-gray-600">
             Describe what you need help with and skilled helpers will contact you with offers
           </p>
@@ -128,7 +125,7 @@ const GigPosting = () => {
         <Tabs defaultValue="post" className="max-w-3xl mx-auto">
           <TabsList className="grid grid-cols-2 mb-8">
             <TabsTrigger value="post">Post a New Job</TabsTrigger>
-            <TabsTrigger value="my-gigs">My Posted Jobs</TabsTrigger>
+            <TabsTrigger value="my-jobs">My Posted Jobs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="post">
@@ -136,7 +133,7 @@ const GigPosting = () => {
               <CardHeader>
                 <CardTitle>Describe Your Project</CardTitle>
                 <CardDescription>
-                  Provide details about what you need help with so service providers can better understand your requirements.
+                  Provide details about what you need help with so helpers can better understand your requirements.
                 </CardDescription>
               </CardHeader>
               
@@ -268,7 +265,7 @@ const GigPosting = () => {
                     ) : (
                       <>
                         <Send className="h-4 w-4 mr-2" />
-                        Post Job Request
+                        Post Job
                       </>
                     )}
                   </Button>
@@ -280,18 +277,18 @@ const GigPosting = () => {
                   By posting, you agree to our terms of service and privacy policy.
                 </p>
                 <p>
-                  Your contact details will only be shared with service providers you approve.
+                  Your contact details will only be shared with helpers you approve.
                 </p>
               </CardFooter>
             </Card>
           </TabsContent>
           
-          <TabsContent value="my-gigs">
+          <TabsContent value="my-jobs">
             <Card>
               <CardHeader>
                 <CardTitle>My Posted Jobs</CardTitle>
                 <CardDescription>
-                  Review and manage your previously posted job requests
+                  Review and manage your previously posted jobs
                 </CardDescription>
               </CardHeader>
               
@@ -299,9 +296,9 @@ const GigPosting = () => {
                 {loading ? (
                   <div className="text-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
-                    <p>Loading your job requests...</p>
+                    <p>Loading your jobs...</p>
                   </div>
-                ) : postedGigs.length === 0 ? (
+                ) : postedJobs.length === 0 ? (
                   <div className="text-center py-8">
                     <p className="text-gray-500 mb-4">You haven't posted any jobs yet</p>
                     <Button 
@@ -314,7 +311,7 @@ const GigPosting = () => {
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {/* Gig listings would go here */}
+                    {/* Job listings would go here */}
                     <div className="border rounded-lg p-4">
                       <h3 className="font-medium">Need help with website design</h3>
                       <p className="text-sm text-gray-500 mt-1">Posted 2 days ago · 3 responses</p>
@@ -330,4 +327,4 @@ const GigPosting = () => {
   );
 };
 
-export default GigPosting;
+export default PostJob;

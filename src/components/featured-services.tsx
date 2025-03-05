@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import ServiceCard from "./service-card";
 import { featuredServices } from "@/data/services";
 import { Button } from "./ui/button";
-import { CreditCard, Shield, Globe, Users, Wrench, Briefcase, Heart } from "lucide-react";
+import { CreditCard, Shield, Globe, Users, Heart } from "lucide-react";
 import { getUserLocation, shouldShowService, UserLocation } from "@/services/location-service";
 import { Badge } from "./ui/badge";
 import { Link } from "react-router-dom";
@@ -137,10 +137,10 @@ const FeaturedServices = () => {
           <div className="bg-white p-6 rounded-xl shadow-sm border border-gray-100">
             <div className="flex items-center mb-4">
               <Shield className="h-8 w-8 text-green-500 mr-3" />
-              <h3 className="text-xl font-bold">Verified Jobs</h3>
+              <h3 className="text-xl font-bold">Verified Gigs</h3>
             </div>
             <p className="text-gray-600">
-              Every job on our platform is verified to ensure quality and legitimacy for your peace of mind.
+              Every gig on our platform is verified to ensure quality and legitimacy for your peace of mind.
             </p>
           </div>
           
