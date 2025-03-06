@@ -7,8 +7,8 @@ import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { Trash2, AlertCircle, ShoppingBag } from "lucide-react";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { supabase } from "@/integrations/supabase/client";
+import PaymentProcessor from "@/components/payments/PaymentProcessor";
 
 interface CartItem {
   id: string;
@@ -38,6 +38,8 @@ const Cart = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [couponCode, setCouponCode] = useState("");
   const [discount, setDiscount] = useState(0);
+  const [showPaymentProcessor, setShowPaymentProcessor] = useState(false);
+  const [selectedService, setSelectedService] = useState<CartItem | null>(null);
   
   useEffect(() => {
     if (!user) {
@@ -148,77 +150,37 @@ const Cart = () => {
     return subtotal - discountAmount;
   };
   
-  const handleCheckout = async () => {
-    if (cartItems.length === 0) {
-      toast({
-        title: "Cart is empty",
-        description: "Add some items to your cart before checking out",
-        variant: "destructive"
-      });
-      return;
+  const handleProceedToCheckout = (item: CartItem) => {
+    setSelectedService(item);
+    setShowPaymentProcessor(true);
+  };
+  
+  const handleBuyAll = () => {
+    // For demo purposes, we'll just take the first item
+    // In a real app, you would handle multiple items
+    if (cartItems.length > 0) {
+      handleProceedToCheckout(cartItems[0]);
+    }
+  };
+  
+  const handlePaymentSuccess = (transactionId: string) => {
+    toast({
+      title: "Payment successful!",
+      description: "Your payment has been processed and is being held in escrow until service completion.",
+    });
+    
+    // Remove the purchased item from the cart
+    if (selectedService) {
+      removeItem(selectedService.id);
     }
     
-    setIsProcessing(true);
-    
-    try {
-      // In a real app, this would create an order and redirect to payment processing
-      // For demo purposes, we'll just simulate the process
-      
-      // Group items by provider
-      const itemsByProvider = cartItems.reduce((acc, item) => {
-        const providerId = item.service.provider_id;
-        if (!acc[providerId]) {
-          acc[providerId] = [];
-        }
-        acc[providerId].push(item);
-        return acc;
-      }, {} as Record<string, CartItem[]>);
-      
-      // For each provider, create a transaction in escrow
-      for (const providerId in itemsByProvider) {
-        const items = itemsByProvider[providerId];
-        const totalAmount = items.reduce((sum, item) => 
-          sum + (item.service.price * item.quantity), 0
-        );
-        
-        // Call our edge function to process payment and create escrow
-        const { data, error } = await supabase.functions.invoke("process-payment", {
-          body: {
-            action: "start_escrow",
-            serviceId: items[0].service_id, // Using first service for demo
-            buyerId: user?.id,
-            providerId,
-            amount: totalAmount * (1 - discount/100), // Apply discount
-            currency: "ZAR",
-            paymentMethod: "card", // This would normally come from payment form
-          },
-        });
-        
-        if (error) throw error;
-        
-        if (!data.success) {
-          throw new Error(data.message || "Payment processing failed");
-        }
-      }
-      
-      toast({
-        title: "Order placed successfully!",
-        description: "Your payment is now in escrow and will be released when the service is completed",
-      });
-      
-      // Clear cart and redirect to orders page
-      setCartItems([]);
-      navigate("/profile");
-      
-    } catch (error: any) {
-      toast({
-        title: "Checkout failed",
-        description: error.message || "There was a problem processing your order",
-        variant: "destructive",
-      });
-    } finally {
-      setIsProcessing(false);
-    }
+    setShowPaymentProcessor(false);
+    setSelectedService(null);
+  };
+  
+  const handlePaymentCancel = () => {
+    setShowPaymentProcessor(false);
+    setSelectedService(null);
   };
   
   if (isLoading) {
@@ -229,6 +191,29 @@ const Cart = () => {
           <div className="flex justify-center items-center h-64">
             <p>Loading your cart...</p>
           </div>
+        </div>
+      </main>
+    );
+  }
+  
+  // If payment processor is showing, render it
+  if (showPaymentProcessor && selectedService) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <Navbar />
+        
+        <div className="container mx-auto px-4 md:px-6 pt-32 pb-16">
+          <PaymentProcessor 
+            paymentDetails={{
+              serviceId: selectedService.service.id,
+              providerId: selectedService.service.provider_id,
+              amount: selectedService.service.price * selectedService.quantity * (1 - discount/100),
+              currency: selectedService.service.currency,
+              description: selectedService.service.title
+            }}
+            onSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
+          />
         </div>
       </main>
     );
@@ -303,6 +288,14 @@ const Cart = () => {
                             </button>
                           </div>
                         </div>
+                        
+                        <Button 
+                          onClick={() => handleProceedToCheckout(item)}
+                          variant="outline" 
+                          className="mt-3"
+                        >
+                          Checkout This Item
+                        </Button>
                       </div>
                     </div>
                   ))}
@@ -357,14 +350,17 @@ const Cart = () => {
                 <Button 
                   className="w-full bg-blue-500 hover:bg-blue-600"
                   disabled={isProcessing || cartItems.length === 0}
-                  onClick={handleCheckout}
+                  onClick={handleBuyAll}
                 >
-                  {isProcessing ? "Processing..." : "Proceed to Checkout"}
+                  {isProcessing ? "Processing..." : "Checkout All Items"}
                 </Button>
                 
-                <p className="text-xs text-center text-gray-500 mt-4">
-                  Payments are held in escrow until services are completed
-                </p>
+                <div className="mt-4 p-4 bg-yellow-50 rounded-md">
+                  <p className="text-sm text-yellow-700">
+                    <strong>Payment Notice:</strong> SA clients use PayFast (EFT/cards), international clients use Payoneer. 
+                    Payments are held in escrow until service completion.
+                  </p>
+                </div>
               </div>
             </div>
           </div>

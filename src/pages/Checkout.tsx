@@ -5,13 +5,13 @@ import Navbar from "@/components/ui/navbar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/context/AuthContext";
 import { supabase } from "@/integrations/supabase/client";
 import { CreditCard, Calendar, AlertCircle, DollarSign } from "lucide-react";
+import PaymentProcessor from "@/components/payments/PaymentProcessor";
 
 const pricingPlans = {
   "pro": { name: "Pro Plan", price: 99, currency: "ZAR", type: "subscriber" },
@@ -28,6 +28,7 @@ const Checkout = () => {
   
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState("card"); // card, stripe, paypal
+  const [showPaymentProcessor, setShowPaymentProcessor] = useState(false);
   const [formData, setFormData] = useState({
     cardName: "",
     cardNumber: "",
@@ -135,6 +136,12 @@ const Checkout = () => {
       return;
     }
     
+    // For card/paypal methods, show the payment processor
+    if (paymentMethod === "card" || paymentMethod === "paypal") {
+      setShowPaymentProcessor(true);
+      return;
+    }
+
     setIsLoading(true);
     
     try {
@@ -196,8 +203,44 @@ const Checkout = () => {
     }
   };
   
+  const handlePaymentSuccess = (transactionId: string) => {
+    toast({
+      title: "Payment successful!",
+      description: `You've subscribed to the ${plan?.name} plan. Transaction ID: ${transactionId.substring(0, 8)}...`,
+    });
+    
+    navigate("/profile");
+  };
+  
+  const handlePaymentCancel = () => {
+    setShowPaymentProcessor(false);
+  };
+  
   if (!plan) {
     return null;
+  }
+  
+  // If payment processor is showing, render it
+  if (showPaymentProcessor && plan) {
+    return (
+      <main className="min-h-screen bg-gray-50">
+        <Navbar />
+        
+        <div className="container mx-auto px-4 md:px-6 pt-28 pb-16">
+          <PaymentProcessor 
+            paymentDetails={{
+              serviceId: planId || "plan",
+              providerId: "system",
+              amount: plan.price,
+              currency: plan.currency,
+              description: `Subscription to ${plan.name}`
+            }}
+            onSuccess={handlePaymentSuccess}
+            onCancel={handlePaymentCancel}
+          />
+        </div>
+      </main>
+    );
   }
   
   return (
@@ -324,15 +367,11 @@ const Checkout = () => {
                   </p>
                 </div>
                 
-                <Select defaultValue="new">
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Select payment method" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="new">New payment method</SelectItem>
-                    <SelectItem value="saved">Use a saved payment method</SelectItem>
-                  </SelectContent>
-                </Select>
+                <div className="bg-yellow-50 p-4 rounded-md">
+                  <p className="text-sm text-yellow-700">
+                    Note: For international clients, payments will be processed using Payoneer's integrated solution.
+                  </p>
+                </div>
               </TabsContent>
               
               <TabsContent value="paypal" className="space-y-4 mt-4">
@@ -359,6 +398,12 @@ const Checkout = () => {
                 <div className="bg-blue-50 p-4 rounded-md">
                   <p className="text-sm text-blue-700">
                     You'll be redirected to PayPal to complete your payment securely.
+                  </p>
+                </div>
+                
+                <div className="bg-yellow-50 p-4 rounded-md">
+                  <p className="text-sm text-yellow-700">
+                    For South African clients, PayFast will be used for processing EFT and local card payments.
                   </p>
                 </div>
               </TabsContent>

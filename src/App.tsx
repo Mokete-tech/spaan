@@ -1,97 +1,49 @@
 
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
-import AdBanner from "@/components/ui/ad-banner";
-import Navbar from "@/components/ui/navbar";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
-import Services from "./pages/Services";
-import Auth from "./pages/Auth";
-import Profile from "./pages/Profile";
-import ProviderApplication from "./pages/ProviderApplication";
-import Pricing from "./pages/Pricing";
-import Checkout from "./pages/Checkout";
-import Cart from "./pages/Cart";
-import PostJob from "./pages/PostJob";
-import { useAuth } from "@/context/AuthContext";
 
-const queryClient = new QueryClient();
+import Index from "@/pages/Index";
+import Auth from "@/pages/Auth";
+import NotFound from "@/pages/NotFound";
+import Services from "@/pages/Services";
+import Explore from "@/pages/Explore";
+import PostJob from "@/pages/PostJob";
+import Profile from "@/pages/Profile";
+import Providers from "@/pages/Providers";
+import ProviderApplication from "@/pages/ProviderApplication";
+import Pricing from "@/pages/Pricing";
+import Checkout from "@/pages/Checkout";
+import Cart from "@/pages/Cart";
+import PaymentSuccess from "@/pages/PaymentSuccess";
+import PaymentCancel from "@/pages/PaymentCancel";
 
-// Protected route component
-const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-  
-  if (isLoading) {
-    return <div className="min-h-screen flex items-center justify-center">Loading...</div>;
-  }
-  
-  if (!user) {
-    return <Navigate to="/auth" replace />;
-  }
-  
-  return <>{children}</>;
-};
+import "@/App.css";
 
-const AppRoutes = () => {
+function App() {
   return (
-    <>
-      <Navbar />
-      <AdBanner slot="top" showCloseButton={true} />
-      
-      <Routes>
-        <Route path="/" element={<Index />} />
-        <Route path="/gigs" element={<Services />} />
-        <Route path="/auth" element={<Auth />} />
-        <Route path="/pricing" element={<Pricing />} />
-        <Route path="/post-job" element={<PostJob />} />
-        
-        {/* Protected routes */}
-        <Route path="/profile" element={
-          <ProtectedRoute>
-            <Profile />
-          </ProtectedRoute>
-        } />
-        <Route path="/providers/apply" element={
-          <ProtectedRoute>
-            <ProviderApplication />
-          </ProtectedRoute>
-        } />
-        <Route path="/checkout" element={
-          <ProtectedRoute>
-            <Checkout />
-          </ProtectedRoute>
-        } />
-        <Route path="/cart" element={
-          <ProtectedRoute>
-            <Cart />
-          </ProtectedRoute>
-        } />
-        
-        {/* Catch-all route */}
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-      
-      <AdBanner slot="bottom" format="large-banner" className="md:hidden" showCloseButton={true} />
-    </>
-  );
-};
-
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <AuthProvider>
+    <AuthProvider>
+      <BrowserRouter>
+        <Routes>
+          <Route path="/" element={<Index />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/services" element={<Services />} />
+          <Route path="/explore" element={<Explore />} />
+          <Route path="/post-job" element={<PostJob />} />
+          <Route path="/profile" element={<Profile />} />
+          <Route path="/providers" element={<Providers />} />
+          <Route path="/provider-application" element={<ProviderApplication />} />
+          <Route path="/pricing" element={<Pricing />} />
+          <Route path="/checkout" element={<Checkout />} />
+          <Route path="/cart" element={<Cart />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/payment-cancel" element={<PaymentCancel />} />
+          <Route path="*" element={<NotFound />} />
+        </Routes>
         <Toaster />
-        <Sonner />
-        <BrowserRouter>
-          <AppRoutes />
-        </BrowserRouter>
-      </AuthProvider>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+      </BrowserRouter>
+    </AuthProvider>
+  );
+}
 
 export default App;
