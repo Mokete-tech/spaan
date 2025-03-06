@@ -20,9 +20,21 @@ export const processPayment = async (amount: number, currency: string, paymentMe
     const { processStripePayment } = await import('./stripe.ts');
     return processStripePayment(amount, currency);
   } 
-  // For PayPal method (mock for now)
+  // For PayPal method
   else if (paymentMethod === "paypal") {
     const mockTransactionId = `pp_${Date.now()}_${Math.floor(Math.random() * 1000)}`
+    
+    return {
+      success: true,
+      transaction_id: mockTransactionId,
+      amount,
+      currency,
+      payment_method: paymentMethod,
+    }
+  }
+  // For PayFast method
+  else if (paymentMethod === "payfast") {
+    const mockTransactionId = `pf_${Date.now()}_${Math.floor(Math.random() * 1000)}`
     
     return {
       success: true,
