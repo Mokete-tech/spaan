@@ -27,7 +27,7 @@ export const createJob = async (jobData: Omit<JobPost, 'id' | 'created_at' | 'st
     .select();
   
   if (error) throw error;
-  return data?.[0];
+  return data?.[0] as JobPost;
 };
 
 export const getUserJobs = async (userId: string) => {
@@ -38,7 +38,12 @@ export const getUserJobs = async (userId: string) => {
     .order('created_at', { ascending: false });
   
   if (error) throw error;
-  return data;
+  
+  // Convert the status string to the expected union type
+  return data.map(job => ({
+    ...job,
+    status: job.status as JobPost['status']
+  })) as JobPost[];
 };
 
 export const getJobById = async (jobId: string) => {
@@ -49,7 +54,12 @@ export const getJobById = async (jobId: string) => {
     .single();
   
   if (error) throw error;
-  return data;
+  
+  // Convert the status string to the expected union type
+  return {
+    ...data,
+    status: data.status as JobPost['status']
+  } as JobPost;
 };
 
 export const updateJobStatus = async (jobId: string, status: JobPost['status']) => {
@@ -60,7 +70,12 @@ export const updateJobStatus = async (jobId: string, status: JobPost['status']) 
     .select();
   
   if (error) throw error;
-  return data?.[0];
+  
+  // Convert the status string to the expected union type
+  return data?.[0] ? {
+    ...data[0],
+    status: data[0].status as JobPost['status']
+  } as JobPost : null;
 };
 
 export const getAllJobs = async () => {
@@ -70,5 +85,10 @@ export const getAllJobs = async () => {
     .order('created_at', { ascending: false });
   
   if (error) throw error;
-  return data;
+  
+  // Convert the status string to the expected union type
+  return data.map(job => ({
+    ...job,
+    status: job.status as JobPost['status']
+  })) as JobPost[];
 };

@@ -147,6 +147,22 @@ const PostJob = () => {
     }).format(date);
   };
 
+  // Helper function to get status badge color
+  const getStatusBadgeClass = (status: JobPost['status']) => {
+    switch(status) {
+      case 'open':
+        return 'bg-green-100 text-green-800';
+      case 'in_progress':
+        return 'bg-blue-100 text-blue-800';
+      case 'completed':
+        return 'bg-gray-100 text-gray-800';
+      case 'cancelled':
+        return 'bg-red-100 text-red-800';
+      default:
+        return 'bg-gray-100 text-gray-800';
+    }
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
@@ -366,15 +382,7 @@ const PostJob = () => {
                               </span>
                             </div>
                           </div>
-                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            job.status === 'open' 
-                              ? 'bg-green-100 text-green-800' 
-                              : job.status === 'in_progress'
-                              ? 'bg-blue-100 text-blue-800'
-                              : job.status === 'completed'
-                              ? 'bg-gray-100 text-gray-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadgeClass(job.status)}`}>
                             {job.status}
                           </span>
                         </div>
