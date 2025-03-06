@@ -62,3 +62,13 @@ export const updateJobStatus = async (jobId: string, status: JobPost['status']) 
   if (error) throw error;
   return data?.[0];
 };
+
+export const getAllJobs = async () => {
+  const { data, error } = await supabase
+    .from('jobs')
+    .select('*')
+    .order('created_at', { ascending: false });
+  
+  if (error) throw error;
+  return data;
+};

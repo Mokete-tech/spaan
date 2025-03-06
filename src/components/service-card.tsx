@@ -58,7 +58,18 @@ const ServiceCard = ({
       title: "Contact initiated",
       description: `You've requested to contact ${provider.name}`,
     });
-    // In a real app, this would open a chat or messaging system
+    navigate(`/messages?provider=${provider.name}&serviceId=${id}`);
+  };
+
+  const handleFavoriteClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setFavorite(!favorite);
+    
+    toast({
+      title: favorite ? "Removed from favorites" : "Added to favorites",
+      description: favorite ? "Service removed from your favorites" : "Service added to your favorites"
+    });
   };
 
   return (
@@ -97,8 +108,9 @@ const ServiceCard = ({
         )}
         <button 
           className="absolute top-3 right-3 bg-white/80 p-1.5 rounded-full shadow-sm hover:bg-white transition-colors"
-          onClick={() => setFavorite(!favorite)}
+          onClick={handleFavoriteClick}
           style={{ display: featured ? 'none' : 'block' }}
+          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
         >
           <Heart className={cn("h-5 w-5 transition-colors", favorite ? "fill-red-500 text-red-500" : "text-gray-400")} />
         </button>

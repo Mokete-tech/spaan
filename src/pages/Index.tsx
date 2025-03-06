@@ -24,47 +24,47 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+            <div className="bg-white p-8 rounded-xl shadow-sm text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Search className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">1. Find a Gig</h3>
               <p className="text-gray-600">
-                Browse available gigs or post your own job for what you need help with.
+                Browse available gigs or post your own request for what you need help with.
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+            <div className="bg-white p-8 rounded-xl shadow-sm text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <Users className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">2. Connect with People</h3>
               <p className="text-gray-600">
-                Choose from available gigs or receive offers on your posted job.
+                Choose from available gigs or receive offers on your posted request.
               </p>
             </div>
             
-            <div className="bg-white p-8 rounded-xl shadow-sm text-center">
+            <div className="bg-white p-8 rounded-xl shadow-sm text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-6">
                 <HeartHandshake className="h-8 w-8 text-blue-500" />
               </div>
               <h3 className="text-xl font-bold mb-4">3. Get it Done</h3>
               <p className="text-gray-600">
-                Complete the job and payment is only released when you're satisfied.
+                Complete the gig and payment is only released when you're satisfied.
               </p>
             </div>
           </div>
         </div>
       </section>
       
-      {/* Jobs Section */}
+      {/* Gigs Section */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4 md:px-6">
           <div className="flex flex-col md:flex-row items-center justify-between gap-12">
             <div className="md:w-1/2">
               <h2 className="text-3xl font-bold mb-4">Need help with something?</h2>
               <p className="text-lg text-gray-600 mb-6">
-                Post a job on Spaan and let qualified people help you get it done. It's quick and easy!
+                Post a gig on Spaan and let qualified people help you get it done. It's quick and easy!
               </p>
               <ul className="space-y-4 mb-8">
                 <li className="flex items-start">
@@ -86,7 +86,7 @@ const Index = () => {
               </ul>
               <Link to="/post-job">
                 <Button className="bg-blue-500 hover:bg-blue-600 px-6">
-                  Post a Job
+                  Post a Gig
                 </Button>
               </Link>
             </div>

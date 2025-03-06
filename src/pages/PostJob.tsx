@@ -11,7 +11,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { MapPin, Clock, DollarSign, Send, Loader2 } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
+import { createJob, getUserJobs, JobPost } from "@/integrations/jobs";
 
 const PostJob = () => {
   const { toast } = useToast();
@@ -27,17 +27,28 @@ const PostJob = () => {
     isRemote: false
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [postedJobs, setPostedJobs] = useState([]);
+  const [postedJobs, setPostedJobs] = useState<JobPost[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Simulating loading of user's posted jobs
-    const timer = setTimeout(() => {
-      setLoading(false);
-    }, 1500);
-    
-    return () => clearTimeout(timer);
-  }, []);
+    const fetchUserJobs = async () => {
+      if (user) {
+        try {
+          setLoading(true);
+          const jobs = await getUserJobs(user.id);
+          setPostedJobs(jobs);
+        } catch (error) {
+          console.error("Error fetching user's gigs:", error);
+        } finally {
+          setLoading(false);
+        }
+      } else {
+        setLoading(false);
+      }
+    };
+
+    fetchUserJobs();
+  }, [user]);
 
   // Handle form input changes
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -56,14 +67,14 @@ const PostJob = () => {
     setFormData(prev => ({ ...prev, [name]: checked }));
   };
 
-  // Submit job posting
+  // Submit gig posting
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!user) {
       toast({
         title: "Authentication required",
-        description: "Please sign in to post a job",
+        description: "Please sign in to post a gig",
         variant: "destructive"
       });
       navigate("/auth");
@@ -73,11 +84,21 @@ const PostJob = () => {
     setIsSubmitting(true);
 
     try {
-      // Submit to Supabase (placeholder for now)
-      await new Promise(resolve => setTimeout(resolve, 1000)); // Simulate API call
+      const jobData = {
+        title: formData.title,
+        description: formData.description,
+        category: formData.category,
+        budget: parseFloat(formData.budget),
+        location: formData.location,
+        timeframe: formData.timeframe,
+        is_remote: formData.isRemote,
+        user_id: user.id
+      };
+      
+      await createJob(jobData);
       
       toast({
-        title: "Job posted successfully!",
+        title: "Gig posted successfully!",
         description: "Helpers will be able to contact you soon.",
       });
       
@@ -92,11 +113,15 @@ const PostJob = () => {
         isRemote: false
       });
       
-    } catch (error) {
-      console.error("Error posting job:", error);
+      // Refresh user's jobs
+      const updatedJobs = await getUserJobs(user.id);
+      setPostedJobs(updatedJobs);
+      
+    } catch (error: any) {
+      console.error("Error posting gig:", error);
       toast({
-        title: "Failed to post job",
-        description: "Please try again later",
+        title: "Failed to post gig",
+        description: error.message || "Please try again later",
         variant: "destructive"
       });
     } finally {
@@ -112,11 +137,21 @@ const PostJob = () => {
     }
   };
 
+  // Format date for display
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    return new Intl.DateTimeFormat('en-ZA', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }).format(date);
+  };
+
   return (
     <main className="min-h-screen bg-gray-50">
       <div className="container mx-auto px-4 py-8">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold mb-2">Post Your Job</h1>
+          <h1 className="text-3xl font-bold mb-2">Post Your Gig</h1>
           <p className="text-gray-600">
             Describe what you need help with and skilled helpers will contact you with offers
           </p>
@@ -124,8 +159,8 @@ const PostJob = () => {
         
         <Tabs defaultValue="post" className="max-w-3xl mx-auto">
           <TabsList className="grid grid-cols-2 mb-8">
-            <TabsTrigger value="post">Post a New Job</TabsTrigger>
-            <TabsTrigger value="my-jobs">My Posted Jobs</TabsTrigger>
+            <TabsTrigger value="post">Post a New Gig</TabsTrigger>
+            <TabsTrigger value="my-jobs">My Posted Gigs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="post">
@@ -141,7 +176,7 @@ const PostJob = () => {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="space-y-4">
                     <div>
-                      <Label htmlFor="title">Job Title</Label>
+                      <Label htmlFor="title">Gig Title</Label>
                       <Input
                         id="title"
                         name="title"
@@ -252,7 +287,7 @@ const PostJob = () => {
                         onChange={handleCheckboxChange}
                         className="rounded border-gray-300"
                       />
-                      <Label htmlFor="isRemote" className="cursor-pointer">This job can be done remotely</Label>
+                      <Label htmlFor="isRemote" className="cursor-pointer">This gig can be done remotely</Label>
                     </div>
                   </div>
                   
@@ -265,7 +300,7 @@ const PostJob = () => {
                     ) : (
                       <>
                         <Send className="h-4 w-4 mr-2" />
-                        Post Job
+                        Post Gig
                       </>
                     )}
                   </Button>
@@ -286,9 +321,9 @@ const PostJob = () => {
           <TabsContent value="my-jobs">
             <Card>
               <CardHeader>
-                <CardTitle>My Posted Jobs</CardTitle>
+                <CardTitle>My Posted Gigs</CardTitle>
                 <CardDescription>
-                  Review and manage your previously posted jobs
+                  Review and manage your previously posted gigs
                 </CardDescription>
               </CardHeader>
               
@@ -296,26 +331,55 @@ const PostJob = () => {
                 {loading ? (
                   <div className="text-center py-8">
                     <Loader2 className="h-8 w-8 animate-spin mx-auto mb-4 text-blue-500" />
-                    <p>Loading your jobs...</p>
+                    <p>Loading your gigs...</p>
                   </div>
                 ) : postedJobs.length === 0 ? (
                   <div className="text-center py-8">
-                    <p className="text-gray-500 mb-4">You haven't posted any jobs yet</p>
+                    <p className="text-gray-500 mb-4">You haven't posted any gigs yet</p>
                     <Button 
                       variant="outline" 
                       className="mt-2"
                       onClick={switchToPostTab}
                     >
-                      Post Your First Job
+                      Post Your First Gig
                     </Button>
                   </div>
                 ) : (
                   <div className="space-y-4">
-                    {/* Job listings would go here */}
-                    <div className="border rounded-lg p-4">
-                      <h3 className="font-medium">Need help with website design</h3>
-                      <p className="text-sm text-gray-500 mt-1">Posted 2 days ago · 3 responses</p>
-                    </div>
+                    {postedJobs.map((job) => (
+                      <div key={job.id} className="border rounded-lg p-4 hover:border-blue-200 transition-colors">
+                        <div className="flex justify-between items-start">
+                          <div>
+                            <h3 className="font-medium">{job.title}</h3>
+                            <p className="text-sm text-gray-500 mt-1">
+                              Posted {job.created_at ? formatDate(job.created_at) : 'recently'}
+                            </p>
+                            <div className="mt-2 flex flex-wrap gap-2">
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                                {job.category}
+                              </span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                                {job.is_remote ? 'Remote' : 'In-person'}
+                              </span>
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+                                ZAR {job.budget}
+                              </span>
+                            </div>
+                          </div>
+                          <span className={`px-2.5 py-0.5 rounded-full text-xs font-medium ${
+                            job.status === 'open' 
+                              ? 'bg-green-100 text-green-800' 
+                              : job.status === 'in_progress'
+                              ? 'bg-blue-100 text-blue-800'
+                              : job.status === 'completed'
+                              ? 'bg-gray-100 text-gray-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {job.status}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 )}
               </CardContent>
