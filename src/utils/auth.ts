@@ -67,17 +67,43 @@ export const handleAuthCallback = async () => {
   
   // Check if user needs to complete profile
   if (data.session) {
-    const { data: profileData, error: profileError } = await supabase
-      .from('profiles')
-      .select('is_profile_complete')
-      .eq('id', data.session.user.id)
-      .single();
-    
-    if (profileError) {
-      console.warn("Error checking profile completion status:", profileError);
-    }
-    
-    if (profileData && !profileData.is_profile_complete) {
+    try {
+      // First check if is_profile_complete column exists
+      const { data: columnsData, error: columnsError } = await supabase
+        .from("information_schema.columns")
+        .select("column_name")
+        .eq("table_name", "profiles")
+        .eq("table_schema", "public");
+      
+      if (columnsError) {
+        console.warn("Error checking columns:", columnsError);
+      }
+      
+      const columns = columnsData ? columnsData.map(col => col.column_name) : [];
+      const hasProfileCompleteColumn = columns.includes("is_profile_complete");
+      
+      // If the column doesn't exist, we'll assume profile is incomplete and redirect to wizard
+      if (!hasProfileCompleteColumn) {
+        return { success: true, redirectTo: '/profile-wizard' };
+      }
+      
+      // If the column exists, check its value
+      const { data: profileData, error: profileError } = await supabase
+        .from('profiles')
+        .select('is_profile_complete')
+        .eq('id', data.session.user.id)
+        .single();
+      
+      if (profileError) {
+        console.warn("Error checking profile completion status:", profileError);
+        return { success: true, redirectTo: '/profile-wizard' };
+      }
+      
+      if (!profileData || !profileData.is_profile_complete) {
+        return { success: true, redirectTo: '/profile-wizard' };
+      }
+    } catch (err) {
+      console.error("Error in profile check:", err);
       return { success: true, redirectTo: '/profile-wizard' };
     }
     

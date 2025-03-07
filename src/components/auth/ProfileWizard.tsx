@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -62,15 +61,43 @@ const ProfileWizard: React.FC = () => {
     
     setIsLoading(true);
     try {
+      // Check if columns exist in profiles table
+      const { data: columnsData, error: columnsError } = await supabase
+        .from("information_schema.columns")
+        .select("column_name")
+        .eq("table_name", "profiles")
+        .eq("table_schema", "public");
+      
+      if (columnsError) {
+        console.error("Error checking columns:", columnsError);
+        throw columnsError;
+      }
+      
+      const columns = columnsData.map(col => col.column_name);
+      const hasPhoneNumberColumn = columns.includes("phone_number");
+      const hasPhoneColumn = columns.includes("phone");
+      const hasProfileCompleteColumn = columns.includes("is_profile_complete");
+      
+      // Prepare update data based on available columns
+      const updateData: Record<string, any> = {
+        first_name: formData.first_name,
+        last_name: formData.last_name,
+        updated_at: new Date().toISOString(),
+      };
+      
+      if (hasPhoneNumberColumn) {
+        updateData.phone_number = formData.phone_number;
+      } else if (hasPhoneColumn) {
+        updateData.phone = formData.phone_number;
+      }
+      
+      if (hasProfileCompleteColumn) {
+        updateData.is_profile_complete = true;
+      }
+
       const { error } = await supabase
         .from("profiles")
-        .update({
-          first_name: formData.first_name,
-          last_name: formData.last_name,
-          phone_number: formData.phone_number,
-          is_profile_complete: true,
-          updated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq("id", user.id);
 
       if (error) throw error;
@@ -292,7 +319,9 @@ const ProfileWizard: React.FC = () => {
           </div>
         </div>
         
-        {renderCurrentStep()}
+        {currentStep === WizardStep.ROLE_SELECTION && renderRoleSelection()}
+        {currentStep === WizardStep.PERSONAL_INFO && renderPersonalInfo()}
+        {currentStep === WizardStep.COMPLETE && renderComplete()}
       </div>
     </div>
   );
