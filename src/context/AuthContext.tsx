@@ -1,12 +1,10 @@
-
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
-import { refreshSession, captureError } from "@/utils/errorHandling";
+import { refreshSession } from "@/utils/paymentProcessing";
+import { captureError } from "@/utils/errorHandling";
 
-// Define the Profile interface based on what we're using in the application
-// This will work alongside the generated Database types without modifying them
 interface Profile {
   id: string;
   first_name: string | null;
@@ -65,9 +63,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
-    // Set up automatic token refresh
     const setupTokenRefresh = () => {
-      // Refresh 5 minutes before the token expires
       const refreshInterval = 55 * 60 * 1000; // 55 minutes
       
       const intervalId = setInterval(async () => {
