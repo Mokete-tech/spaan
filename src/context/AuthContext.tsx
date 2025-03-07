@@ -11,9 +11,9 @@ interface Profile {
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-  role?: "client" | "provider" | null;
-  phone_number?: string | null;
   phone?: string | null;
+  // These fields don't exist in the actual profiles table but are needed by the app
+  role?: "client" | "provider" | null;
   is_profile_complete?: boolean;
 }
 
@@ -102,7 +102,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Query for profile data without checking for columns first
+      // Query for profile data
       const { data, error } = await supabase
         .from("profiles")
         .select("*")
@@ -111,20 +111,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (error) throw error;
       
+      // Check if the user has a role in the user_roles table
+      const { data: roleData, error: roleError } = await supabase
+        .from("user_roles")
+        .select("role")
+        .eq("user_id", userId)
+        .maybeSingle();
+        
+      if (roleError && roleError.code !== 'PGRST116') {
+        // Only log real errors, not just "no data found"
+        console.error("Error fetching user role:", roleError);
+      }
+
       // Create profile object with the data we have
       const profileData: Profile = {
         id: data.id,
         first_name: data.first_name,
         last_name: data.last_name,
         avatar_url: data.avatar_url,
-        // Use optional chaining to safely access properties that might not exist
-        role: data.role ?? null,
-        phone_number: data.phone_number ?? data.phone ?? null,
-        is_profile_complete: !!data.is_profile_complete,
+        phone: data.phone,
+        // Add role from user_roles table if exists
+        role: roleData?.role as "client" | "provider" | null || null,
+        // Check if profile is complete (has first and last name)
+        is_profile_complete: !!(data.first_name && data.last_name)
       };
       
       setProfile(profileData);
-      setIsProfileComplete(!!data.is_profile_complete);
+      setIsProfileComplete(!!(data.first_name && data.last_name));
     } catch (error) {
       console.error("Error fetching profile:", error);
       captureError(error, { context: 'fetchProfile', userId });
@@ -141,15 +154,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     
     try {
-      // Simplify the update by directly trying to set the role
-      const updateData: Record<string, any> = { role };
-      
-      const { error } = await supabase
-        .from("profiles")
-        .update(updateData)
-        .eq("id", user.id);
+      // First, check if a user_role already exists
+      const { data: existingRole, error: checkError } = await supabase
+        .from("user_roles")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
         
-      if (error) throw error;
+      if (checkError && checkError.code !== 'PGRST116') {
+        throw checkError;
+      }
+      
+      let roleError;
+      
+      // If role exists, update it; otherwise insert a new one
+      if (existingRole) {
+        const { error } = await supabase
+          .from("user_roles")
+          .update({ role })
+          .eq("id", existingRole.id);
+        roleError = error;
+      } else {
+        const { error } = await supabase
+          .from("user_roles")
+          .insert({ user_id: user.id, role });
+        roleError = error;
+      }
+      
+      if (roleError) throw roleError;
       
       await refreshProfile();
       

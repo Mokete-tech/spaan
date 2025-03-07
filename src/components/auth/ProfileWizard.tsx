@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -28,7 +27,7 @@ const ProfileWizard: React.FC = () => {
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
-    phone_number: "",
+    phone: "",
   });
 
   const handleRoleSelect = async (role: "client" | "provider") => {
@@ -62,13 +61,11 @@ const ProfileWizard: React.FC = () => {
     
     setIsLoading(true);
     try {
-      // Directly update the profile with the data we have
       const updateData: Record<string, any> = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         updated_at: new Date().toISOString(),
-        phone_number: formData.phone_number,
-        is_profile_complete: true
+        phone: formData.phone,
       };
 
       const { error } = await supabase
@@ -196,11 +193,11 @@ const ProfileWizard: React.FC = () => {
         </div>
         
         <div className="space-y-2">
-          <Label htmlFor="phone_number">Phone Number</Label>
+          <Label htmlFor="phone">Phone</Label>
           <Input
-            id="phone_number"
-            name="phone_number"
-            value={formData.phone_number}
+            id="phone"
+            name="phone"
+            value={formData.phone}
             onChange={handleInputChange}
             placeholder="+27 12 345 6789"
             type="tel"
@@ -389,11 +386,11 @@ const ProfileWizard: React.FC = () => {
               </div>
               
               <div className="space-y-2">
-                <Label htmlFor="phone_number">Phone Number</Label>
+                <Label htmlFor="phone">Phone</Label>
                 <Input
-                  id="phone_number"
-                  name="phone_number"
-                  value={formData.phone_number}
+                  id="phone"
+                  name="phone"
+                  value={formData.phone}
                   onChange={handleInputChange}
                   placeholder="+27 12 345 6789"
                   type="tel"

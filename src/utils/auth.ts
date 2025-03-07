@@ -80,8 +80,8 @@ export const handleAuthCallback = async () => {
         return { success: true, redirectTo: '/profile-wizard' };
       }
       
-      // If profile is not complete, redirect to wizard
-      if (!profileData || !profileData.is_profile_complete) {
+      // If profile is not complete (first name and last name are required)
+      if (!profileData || !profileData.first_name || !profileData.last_name) {
         return { success: true, redirectTo: '/profile-wizard' };
       }
       
