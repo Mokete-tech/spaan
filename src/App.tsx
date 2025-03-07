@@ -3,6 +3,8 @@ import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
 import { AuthProvider } from "@/context/AuthContext";
 import Navbar from "@/components/ui/navbar";
+import { useEffect } from "react";
+import { initSentry } from "@/utils/errorHandling";
 
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
@@ -22,6 +24,25 @@ import PaymentCancel from "@/pages/PaymentCancel";
 import "@/App.css";
 
 function App() {
+  // Initialize Sentry when the app loads
+  useEffect(() => {
+    initSentry();
+    
+    // Set up global error handler
+    const originalConsoleError = console.error;
+    console.error = (...args) => {
+      // Log the error to the console
+      originalConsoleError(...args);
+      
+      // Additional processing for specific errors could be added here
+    };
+    
+    return () => {
+      // Restore original console.error on cleanup
+      console.error = originalConsoleError;
+    };
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

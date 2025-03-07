@@ -3,6 +3,7 @@ import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
+import { refreshSession, captureError } from "@/utils/errorHandling";
 
 // Define the Profile interface based on what we're using in the application
 // This will work alongside the generated Database types without modifying them
@@ -43,6 +44,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
       } catch (error) {
         console.error("Error getting initial session:", error);
+        captureError(error, { context: 'getInitialSession' });
       } finally {
         setIsLoading(false);
       }
@@ -63,8 +65,33 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     );
 
+    // Set up automatic token refresh
+    const setupTokenRefresh = () => {
+      // Refresh 5 minutes before the token expires
+      const refreshInterval = 55 * 60 * 1000; // 55 minutes
+      
+      const intervalId = setInterval(async () => {
+        if (session) {
+          try {
+            const { session: newSession } = await refreshSession();
+            if (newSession) {
+              setSession(newSession);
+              setUser(newSession.user);
+            }
+          } catch (error) {
+            console.error("Error refreshing token:", error);
+          }
+        }
+      }, refreshInterval);
+      
+      return () => clearInterval(intervalId);
+    };
+    
+    const cleanupTokenRefresh = setupTokenRefresh();
+
     return () => {
       subscription.unsubscribe();
+      cleanupTokenRefresh();
     };
   }, []);
 
@@ -80,6 +107,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       setProfile(data);
     } catch (error) {
       console.error("Error fetching profile:", error);
+      captureError(error, { context: 'fetchProfile', userId });
     }
   };
 
@@ -102,6 +130,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         description: error.message || "An unexpected error occurred",
         variant: "destructive"
       });
+      captureError(error, { context: 'signOut' });
     }
   };
 
