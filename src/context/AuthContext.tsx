@@ -1,3 +1,4 @@
+
 import React, { createContext, useState, useEffect, useContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
@@ -10,6 +11,9 @@ interface Profile {
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
+  role: "client" | "provider" | null;
+  phone_number: string | null;
+  is_profile_complete: boolean;
 }
 
 interface AuthContextType {
@@ -19,6 +23,8 @@ interface AuthContextType {
   isLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
+  updateUserRole: (role: "client" | "provider") => Promise<void>;
+  isProfileComplete: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -28,6 +34,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [isProfileComplete, setIsProfileComplete] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -59,6 +66,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           await fetchProfile(session.user.id);
         } else {
           setProfile(null);
+          setIsProfileComplete(false);
         }
       }
     );
@@ -95,12 +103,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     try {
       const { data, error } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, avatar_url")
+        .select("id, first_name, last_name, avatar_url, role, phone_number, is_profile_complete")
         .eq("id", userId)
         .single();
 
       if (error) throw error;
       setProfile(data);
+      setIsProfileComplete(data?.is_profile_complete || false);
     } catch (error) {
       console.error("Error fetching profile:", error);
       captureError(error, { context: 'fetchProfile', userId });
@@ -110,6 +119,34 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const refreshProfile = async () => {
     if (user) {
       await fetchProfile(user.id);
+    }
+  };
+
+  const updateUserRole = async (role: "client" | "provider") => {
+    if (!user) return;
+    
+    try {
+      const { error } = await supabase
+        .from("profiles")
+        .update({ role })
+        .eq("id", user.id);
+        
+      if (error) throw error;
+      
+      await refreshProfile();
+      
+      toast({
+        title: "Role updated successfully",
+        description: `You are now registered as a ${role}`,
+      });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      captureError(error, { context: 'updateUserRole', userId: user.id });
+      toast({
+        title: "Error updating role",
+        description: "Please try again later",
+        variant: "destructive"
+      });
     }
   };
 
@@ -139,6 +176,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         signOut,
         refreshProfile,
+        updateUserRole,
+        isProfileComplete,
       }}
     >
       {children}

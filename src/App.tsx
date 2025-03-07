@@ -8,6 +8,7 @@ import { initSentry } from "@/utils/errorHandling";
 
 import Index from "@/pages/Index";
 import Auth from "@/pages/Auth";
+import AuthCallback from "@/pages/AuthCallback";
 import NotFound from "@/pages/NotFound";
 import Services from "@/pages/Services";
 import Explore from "@/pages/Explore";
@@ -20,6 +21,7 @@ import Checkout from "@/pages/Checkout";
 import Cart from "@/pages/Cart";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentCancel from "@/pages/PaymentCancel";
+import ProfileWizard from "@/pages/ProfileWizard";
 
 import "@/App.css";
 
@@ -50,6 +52,8 @@ function App() {
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/auth/callback" element={<AuthCallback />} />
+          <Route path="/profile-wizard" element={<ProfileWizard />} />
           <Route path="/services" element={<Services />} />
           <Route path="/explore" element={<Explore />} />
           <Route path="/post-job" element={<PostJob />} />
