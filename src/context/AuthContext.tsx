@@ -13,7 +13,7 @@ interface Profile {
   avatar_url: string | null;
   phone?: string | null;
   // These fields don't exist in the actual profiles table but are needed by the app
-  role?: "client" | "provider" | null;
+  role?: "user" | "provider" | "admin" | null;
   is_profile_complete?: boolean;
 }
 
@@ -24,7 +24,7 @@ interface AuthContextType {
   isLoading: boolean;
   signOut: () => Promise<void>;
   refreshProfile: () => Promise<void>;
-  updateUserRole: (role: "client" | "provider") => Promise<void>;
+  updateUserRole: (role: "user" | "provider") => Promise<void>;
   isProfileComplete: boolean;
 }
 
@@ -131,7 +131,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         avatar_url: data.avatar_url,
         phone: data.phone,
         // Add role from user_roles table if exists
-        role: roleData?.role as "client" | "provider" | null || null,
+        role: roleData?.role as "user" | "provider" | "admin" | null || null,
         // Check if profile is complete (has first and last name)
         is_profile_complete: !!(data.first_name && data.last_name)
       };
@@ -150,7 +150,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const updateUserRole = async (role: "client" | "provider") => {
+  const updateUserRole = async (role: "user" | "provider") => {
     if (!user) return;
     
     try {

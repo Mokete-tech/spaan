@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -23,14 +24,14 @@ const ProfileWizard: React.FC = () => {
   
   const [currentStep, setCurrentStep] = useState<WizardStep>(WizardStep.ROLE_SELECTION);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [selectedRole, setSelectedRole] = useState<"client" | "provider" | null>(null);
+  const [selectedRole, setSelectedRole] = useState<"user" | "provider" | null>(null);
   const [formData, setFormData] = useState({
     first_name: "",
     last_name: "",
     phone: "",
   });
 
-  const handleRoleSelect = async (role: "client" | "provider") => {
+  const handleRoleSelect = async (role: "user" | "provider") => {
     setSelectedRole(role);
     setIsLoading(true);
     try {
@@ -302,15 +303,15 @@ const ProfileWizard: React.FC = () => {
               <RadioGroup
                 className="grid grid-cols-2 gap-4"
                 value={selectedRole || ""}
-                onValueChange={(value) => setSelectedRole(value as "client" | "provider")}
+                onValueChange={(value) => setSelectedRole(value as "user" | "provider")}
               >
                 <Label 
-                  htmlFor="client" 
+                  htmlFor="user" 
                   className={`flex flex-col items-center p-4 border rounded-lg cursor-pointer transition-all ${
-                    selectedRole === "client" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                    selectedRole === "user" ? "border-blue-500 bg-blue-50" : "border-gray-200"
                   }`}
                 >
-                  <RadioGroupItem value="client" id="client" className="sr-only" />
+                  <RadioGroupItem value="user" id="user" className="sr-only" />
                   <User size={48} className="mb-2 text-blue-600" />
                   <div className="font-medium">I Need Help</div>
                   <p className="text-sm text-gray-500 text-center mt-2">
@@ -335,7 +336,7 @@ const ProfileWizard: React.FC = () => {
             </CardContent>
             <CardFooter>
               <Button 
-                onClick={() => handleRoleSelect(selectedRole as "client" | "provider")}
+                onClick={() => handleRoleSelect(selectedRole as "user" | "provider")}
                 className="w-full"
                 disabled={!selectedRole || isLoading}
               >
