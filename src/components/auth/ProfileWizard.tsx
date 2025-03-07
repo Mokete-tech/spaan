@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/context/AuthContext";
@@ -61,39 +62,14 @@ const ProfileWizard: React.FC = () => {
     
     setIsLoading(true);
     try {
-      // Check if columns exist in profiles table
-      const { data: columnsData, error: columnsError } = await supabase
-        .from("information_schema.columns")
-        .select("column_name")
-        .eq("table_name", "profiles")
-        .eq("table_schema", "public");
-      
-      if (columnsError) {
-        console.error("Error checking columns:", columnsError);
-        throw columnsError;
-      }
-      
-      const columns = columnsData.map(col => col.column_name);
-      const hasPhoneNumberColumn = columns.includes("phone_number");
-      const hasPhoneColumn = columns.includes("phone");
-      const hasProfileCompleteColumn = columns.includes("is_profile_complete");
-      
-      // Prepare update data based on available columns
+      // Directly update the profile with the data we have
       const updateData: Record<string, any> = {
         first_name: formData.first_name,
         last_name: formData.last_name,
         updated_at: new Date().toISOString(),
+        phone_number: formData.phone_number,
+        is_profile_complete: true
       };
-      
-      if (hasPhoneNumberColumn) {
-        updateData.phone_number = formData.phone_number;
-      } else if (hasPhoneColumn) {
-        updateData.phone = formData.phone_number;
-      }
-      
-      if (hasProfileCompleteColumn) {
-        updateData.is_profile_complete = true;
-      }
 
       const { error } = await supabase
         .from("profiles")
@@ -319,9 +295,160 @@ const ProfileWizard: React.FC = () => {
           </div>
         </div>
         
-        {currentStep === WizardStep.ROLE_SELECTION && renderRoleSelection()}
-        {currentStep === WizardStep.PERSONAL_INFO && renderPersonalInfo()}
-        {currentStep === WizardStep.COMPLETE && renderComplete()}
+        {currentStep === WizardStep.ROLE_SELECTION && (
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <CardTitle>Welcome to Spaan!</CardTitle>
+              <CardDescription>How would you like to use our platform?</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <RadioGroup
+                className="grid grid-cols-2 gap-4"
+                value={selectedRole || ""}
+                onValueChange={(value) => setSelectedRole(value as "client" | "provider")}
+              >
+                <Label 
+                  htmlFor="client" 
+                  className={`flex flex-col items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                    selectedRole === "client" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  }`}
+                >
+                  <RadioGroupItem value="client" id="client" className="sr-only" />
+                  <User size={48} className="mb-2 text-blue-600" />
+                  <div className="font-medium">I Need Help</div>
+                  <p className="text-sm text-gray-500 text-center mt-2">
+                    Post jobs and find service providers
+                  </p>
+                </Label>
+                
+                <Label 
+                  htmlFor="provider" 
+                  className={`flex flex-col items-center p-4 border rounded-lg cursor-pointer transition-all ${
+                    selectedRole === "provider" ? "border-blue-500 bg-blue-50" : "border-gray-200"
+                  }`}
+                >
+                  <RadioGroupItem value="provider" id="provider" className="sr-only" />
+                  <Briefcase size={48} className="mb-2 text-blue-600" />
+                  <div className="font-medium">I Provide Services</div>
+                  <p className="text-sm text-gray-500 text-center mt-2">
+                    Offer your skills and find clients
+                  </p>
+                </Label>
+              </RadioGroup>
+            </CardContent>
+            <CardFooter>
+              <Button 
+                onClick={() => handleRoleSelect(selectedRole as "client" | "provider")}
+                className="w-full"
+                disabled={!selectedRole || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Processing...
+                  </>
+                ) : (
+                  "Continue"
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+        
+        {currentStep === WizardStep.PERSONAL_INFO && (
+          <Card className="w-full">
+            <CardHeader>
+              <CardTitle>Complete Your Profile</CardTitle>
+              <CardDescription>
+                Tell us a bit about yourself to get started
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="first_name">First Name</Label>
+                <Input
+                  id="first_name"
+                  name="first_name"
+                  value={formData.first_name}
+                  onChange={handleInputChange}
+                  placeholder="John"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="last_name">Last Name</Label>
+                <Input
+                  id="last_name"
+                  name="last_name"
+                  value={formData.last_name}
+                  onChange={handleInputChange}
+                  placeholder="Doe"
+                  required
+                />
+              </div>
+              
+              <div className="space-y-2">
+                <Label htmlFor="phone_number">Phone Number</Label>
+                <Input
+                  id="phone_number"
+                  name="phone_number"
+                  value={formData.phone_number}
+                  onChange={handleInputChange}
+                  placeholder="+27 12 345 6789"
+                  type="tel"
+                />
+              </div>
+            </CardContent>
+            <CardFooter>
+              <Button
+                onClick={handleSubmitPersonalInfo}
+                className="w-full"
+                disabled={!formData.first_name || !formData.last_name || isLoading}
+              >
+                {isLoading ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Saving...
+                  </>
+                ) : (
+                  "Save Profile"
+                )}
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
+        
+        {currentStep === WizardStep.COMPLETE && (
+          <Card className="w-full">
+            <CardHeader className="text-center">
+              <div className="mx-auto w-16 h-16 flex items-center justify-center rounded-full bg-green-100 mb-4">
+                <CheckCircle className="h-10 w-10 text-green-500" />
+              </div>
+              <CardTitle>Profile Complete!</CardTitle>
+              <CardDescription>
+                You're all set and ready to use Spaan services
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="text-center">
+              {selectedRole === "provider" ? (
+                <p className="text-gray-500">
+                  As a service provider, we need to verify your account before you can start accepting jobs.
+                  We'll guide you through this process next.
+                </p>
+              ) : (
+                <p className="text-gray-500">
+                  You can now post jobs and find service providers to help with your tasks.
+                </p>
+              )}
+            </CardContent>
+            <CardFooter>
+              <Button onClick={handleFinish} className="w-full">
+                Continue
+              </Button>
+            </CardFooter>
+          </Card>
+        )}
       </div>
     </div>
   );

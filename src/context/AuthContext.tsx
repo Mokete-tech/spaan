@@ -11,9 +11,10 @@ interface Profile {
   first_name: string | null;
   last_name: string | null;
   avatar_url: string | null;
-  role: "client" | "provider" | null;
-  phone_number: string | null;
-  is_profile_complete: boolean;
+  role?: "client" | "provider" | null;
+  phone_number?: string | null;
+  phone?: string | null;
+  is_profile_complete?: boolean;
 }
 
 interface AuthContextType {
@@ -101,61 +102,29 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const fetchProfile = async (userId: string) => {
     try {
-      // Check if the columns exist before querying them
-      const { data: columnsData, error: columnsError } = await supabase
-        .from("information_schema.columns")
-        .select("column_name")
-        .eq("table_name", "profiles")
-        .eq("table_schema", "public");
-      
-      if (columnsError) {
-        console.error("Error checking columns:", columnsError);
-        return;
-      }
-      
-      const columns = columnsData.map(col => col.column_name);
-      const hasRoleColumn = columns.includes("role");
-      const hasProfileCompleteColumn = columns.includes("is_profile_complete");
-      const hasPhoneColumn = columns.includes("phone");
-      const hasPhoneNumberColumn = columns.includes("phone_number");
-      
-      let query = supabase
+      // Query for profile data without checking for columns first
+      const { data, error } = await supabase
         .from("profiles")
-        .select("id, first_name, last_name, avatar_url");
-      
-      if (hasRoleColumn) {
-        query = query.select(`id, first_name, last_name, avatar_url, role`);
-      }
-      
-      if (hasProfileCompleteColumn) {
-        query = query.select(`id, first_name, last_name, avatar_url${hasRoleColumn ? ', role' : ''}, is_profile_complete`);
-      }
-      
-      if (hasPhoneColumn) {
-        query = query.select(`id, first_name, last_name, avatar_url${hasRoleColumn ? ', role' : ''}${hasProfileCompleteColumn ? ', is_profile_complete' : ''}, phone`);
-      }
-      
-      if (hasPhoneNumberColumn) {
-        query = query.select(`id, first_name, last_name, avatar_url${hasRoleColumn ? ', role' : ''}${hasProfileCompleteColumn ? ', is_profile_complete' : ''}, phone_number`);
-      }
-      
-      const { data, error } = await query.eq("id", userId).single();
+        .select("*")
+        .eq("id", userId)
+        .single();
 
       if (error) throw error;
       
-      // Create a profile object with default values for missing columns
+      // Create profile object with the data we have
       const profileData: Profile = {
         id: data.id,
         first_name: data.first_name,
         last_name: data.last_name,
         avatar_url: data.avatar_url,
-        role: hasRoleColumn ? data.role : null,
-        phone_number: hasPhoneNumberColumn ? data.phone_number : (hasPhoneColumn ? data.phone : null),
-        is_profile_complete: hasProfileCompleteColumn ? data.is_profile_complete : false
+        // Use optional chaining to safely access properties that might not exist
+        role: data.role ?? null,
+        phone_number: data.phone_number ?? data.phone ?? null,
+        is_profile_complete: !!data.is_profile_complete,
       };
       
       setProfile(profileData);
-      setIsProfileComplete(hasProfileCompleteColumn ? data.is_profile_complete : false);
+      setIsProfileComplete(!!data.is_profile_complete);
     } catch (error) {
       console.error("Error fetching profile:", error);
       captureError(error, { context: 'fetchProfile', userId });
@@ -172,27 +141,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     if (!user) return;
     
     try {
-      // Check if role column exists in profiles table
-      const { data: columnsData, error: columnsError } = await supabase
-        .from("information_schema.columns")
-        .select("column_name")
-        .eq("table_name", "profiles")
-        .eq("table_schema", "public");
-      
-      if (columnsError) {
-        console.error("Error checking columns:", columnsError);
-        throw columnsError;
-      }
-      
-      const columns = columnsData.map(col => col.column_name);
-      const hasRoleColumn = columns.includes("role");
-      
-      // Prepare update data based on available columns
-      const updateData: Record<string, any> = {};
-      
-      if (hasRoleColumn) {
-        updateData.role = role;
-      }
+      // Simplify the update by directly trying to set the role
+      const updateData: Record<string, any> = { role };
       
       const { error } = await supabase
         .from("profiles")
