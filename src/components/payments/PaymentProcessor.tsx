@@ -87,8 +87,8 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
     }
   };
   
-  // Mock Payoneer checkout function
-  const handlePayoneerCheckout = () => {
+  // Payoneer checkout function
+  const handlePayoneerCheckout = async () => {
     if (!user) return;
     
     setIsLoading(true);

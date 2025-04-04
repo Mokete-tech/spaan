@@ -1,3 +1,4 @@
+
 import { supabase } from "@/integrations/supabase/client";
 import { withRetry, captureError } from "./errorHandling";
 import { toast } from "@/hooks/use-toast";
