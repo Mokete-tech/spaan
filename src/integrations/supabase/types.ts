@@ -54,6 +54,84 @@ export type Database = {
         }
         Relationships: []
       }
+      payments: {
+        Row: {
+          amount: number
+          buyer_id: string
+          conversion_fee: number | null
+          created_at: string
+          currency: string
+          escrow_fee: number | null
+          escrow_transaction_id: string | null
+          id: string
+          net_amount: number
+          payment_details: Json | null
+          payment_method: string | null
+          payoneer_transaction_id: string | null
+          payout_method: string | null
+          platform_fee: number
+          provider_id: string
+          service_id: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          amount: number
+          buyer_id: string
+          conversion_fee?: number | null
+          created_at?: string
+          currency?: string
+          escrow_fee?: number | null
+          escrow_transaction_id?: string | null
+          id?: string
+          net_amount: number
+          payment_details?: Json | null
+          payment_method?: string | null
+          payoneer_transaction_id?: string | null
+          payout_method?: string | null
+          platform_fee: number
+          provider_id: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          amount?: number
+          buyer_id?: string
+          conversion_fee?: number | null
+          created_at?: string
+          currency?: string
+          escrow_fee?: number | null
+          escrow_transaction_id?: string | null
+          id?: string
+          net_amount?: number
+          payment_details?: Json | null
+          payment_method?: string | null
+          payoneer_transaction_id?: string | null
+          payout_method?: string | null
+          platform_fee?: number
+          provider_id?: string
+          service_id?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payments_service_id_fkey"
+            columns: ["service_id"]
+            isOneToOne: false
+            referencedRelation: "services"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -340,7 +418,18 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      payment_analytics: {
+        Row: {
+          currency: string | null
+          month: string | null
+          total_amount: number | null
+          total_conversion_fees: number | null
+          total_escrow_fees: number | null
+          total_platform_fees: number | null
+          transaction_count: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       has_role: {

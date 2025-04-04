@@ -1,140 +1,169 @@
 
 import React, { useEffect, useState } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
-import Navbar from "@/components/ui/navbar";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, ArrowRight } from "lucide-react";
-import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useToast } from "@/hooks/use-toast";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { CheckCircle, ArrowRight } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
 
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { user } = useAuth();
   
-  const [loading, setLoading] = useState(true);
-  const [transactionDetails, setTransactionDetails] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [paymentDetails, setPaymentDetails] = useState<any>(null);
   
-  // Get the service ID from the URL if it exists
+  // Extract payment ID from URL parameters
   const serviceId = searchParams.get("service");
+  const paymentId = searchParams.get("pf_payment_id") || searchParams.get("payment_id");
+  const m_payment_id = searchParams.get("m_payment_id");
   
+  // Poll for payment status if we have a payment ID
   useEffect(() => {
-    const verifyPayment = async () => {
+    if (!user) return;
+    
+    const checkPaymentStatus = async () => {
       try {
-        setLoading(true);
+        // Find the payment in our database
+        if (paymentId) {
+          const { data, error } = await supabase
+            .from("payments")
+            .select("*")
+            .eq("transaction_id", paymentId)
+            .maybeSingle();
+            
+          if (data) {
+            setPaymentDetails(data);
+            setIsLoading(false);
+            return;
+          }
+        }
         
-        // This would actually verify the payment with PayFast or Payoneer
-        // and retrieve the transaction details from our database
+        // If we have a merchant payment ID, try that instead
+        if (m_payment_id) {
+          const { data, error } = await supabase
+            .from("payments")
+            .select("*")
+            .eq("payment_id", m_payment_id)
+            .maybeSingle();
+            
+          if (data) {
+            setPaymentDetails(data);
+            setIsLoading(false);
+            return;
+          }
+        }
         
-        if (serviceId) {
-          // Get transaction details from our database
+        // If we have a service ID but no payment ID, try to find the latest transaction
+        if (serviceId && !paymentId && !m_payment_id) {
           const { data, error } = await supabase
             .from("transactions")
             .select("*")
             .eq("service_id", serviceId)
+            .eq("buyer_id", user.id)
             .order("created_at", { ascending: false })
             .limit(1)
-            .single();
-          
-          if (error) throw error;
-          
-          setTransactionDetails(data);
-          
-          // Show toast for success
-          toast({
-            title: "Payment confirmed",
-            description: "Your payment has been processed successfully",
-          });
-        } else {
-          // No service ID in URL, just show generic success
-          setTransactionDetails({
-            status: "success",
-            created_at: new Date().toISOString(),
-          });
+            .maybeSingle();
+            
+          if (data) {
+            setPaymentDetails({
+              amount: data.amount,
+              currency: data.currency,
+              status: data.status,
+              service_id: data.service_id
+            });
+            setIsLoading(false);
+            return;
+          }
         }
-      } catch (error) {
-        console.error("Error verifying payment:", error);
-        toast({
-          title: "Verification issue",
-          description: "We couldn't verify your payment details, but your payment may still have been processed",
-          variant: "destructive",
-        });
-      } finally {
-        setLoading(false);
+        
+        // If we couldn't find the payment details, show a generic success message
+        setIsLoading(false);
+      } catch (err) {
+        console.error("Error fetching payment status:", err);
+        setIsLoading(false);
       }
     };
     
-    verifyPayment();
-  }, [serviceId, toast]);
+    checkPaymentStatus();
+  }, [paymentId, m_payment_id, serviceId, user]);
   
   return (
     <main className="min-h-screen bg-gray-50">
-      <Navbar />
-      
       <div className="container mx-auto px-4 md:px-6 pt-28 pb-16">
-        <div className="max-w-md mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-          <div className="p-6 text-center">
-            <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-            <h1 className="text-2xl font-bold mb-2">Payment Successful!</h1>
-            <p className="text-gray-600 mb-6">
-              Thank you for your payment. Your transaction has been completed successfully.
-            </p>
-            
-            {transactionDetails && (
-              <div className="bg-gray-50 rounded-md p-4 mb-6 text-left">
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="text-gray-500">Status:</div>
-                  <div className="font-medium text-right">
-                    <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                      {transactionDetails.status || "Success"}
-                    </span>
+        <Card className="max-w-md mx-auto">
+          <CardHeader className="text-center pb-2">
+            <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-2" />
+            <CardTitle className="text-2xl">Payment Successful!</CardTitle>
+          </CardHeader>
+          
+          <CardContent className="text-center pb-6">
+            {isLoading ? (
+              <p>Verifying your payment...</p>
+            ) : (
+              <>
+                {paymentDetails && (
+                  <div className="mt-4 p-4 bg-gray-50 rounded-md">
+                    <p className="text-lg font-medium mb-2">
+                      {paymentDetails.currency} {Number(paymentDetails.amount).toFixed(2)}
+                    </p>
+                    <p className="text-sm text-gray-600 mb-1">
+                      Payment Status: <span className="font-medium capitalize">{paymentDetails.status || "Completed"}</span>
+                    </p>
+                    {paymentDetails.payment_id && (
+                      <p className="text-xs text-gray-500">
+                        Reference: {paymentDetails.payment_id}
+                      </p>
+                    )}
                   </div>
-                  
-                  <div className="text-gray-500">Date:</div>
-                  <div className="font-medium text-right">
-                    {new Date(transactionDetails.created_at).toLocaleDateString()}
-                  </div>
-                  
-                  {transactionDetails.amount && (
-                    <>
-                      <div className="text-gray-500">Amount:</div>
-                      <div className="font-medium text-right">
-                        {transactionDetails.currency || "ZAR"} {parseFloat(transactionDetails.amount).toFixed(2)}
-                      </div>
-                    </>
-                  )}
-                  
-                  {transactionDetails.id && (
-                    <>
-                      <div className="text-gray-500">Transaction ID:</div>
-                      <div className="font-medium text-right text-xs truncate">
-                        {transactionDetails.id}
-                      </div>
-                    </>
-                  )}
+                )}
+                
+                <p className="mt-4 text-gray-700">
+                  Thank you for your payment. Your transaction has been processed successfully.
+                </p>
+                
+                <div className="mt-6 flex items-center justify-center text-sm">
+                  <div className="w-2 h-2 rounded-full bg-green-500 mr-2" />
+                  <p className="text-gray-600">
+                    {serviceId ? "Payment is held in escrow until service completion" : "Your subscription is now active"}
+                  </p>
                 </div>
-              </div>
+              </>
             )}
-            
-            <div className="space-y-3">
-              <Button
+          </CardContent>
+          
+          <CardFooter className="flex flex-col space-y-2">
+            {serviceId ? (
+              <Button 
+                onClick={() => navigate(`/services/${serviceId}`)}
+                className="w-full bg-blue-500 hover:bg-blue-600"
+              >
+                View Service Details
+                <ArrowRight className="ml-1 h-4 w-4" />
+              </Button>
+            ) : (
+              <Button 
                 onClick={() => navigate("/profile")}
                 className="w-full bg-blue-500 hover:bg-blue-600"
               >
-                View My Orders
+                Go to My Profile
+                <ArrowRight className="ml-1 h-4 w-4" />
               </Button>
-              
-              <Button
-                variant="outline"
-                onClick={() => navigate("/services")}
-                className="w-full"
-              >
-                Continue Shopping
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        </div>
+            )}
+            
+            <Button 
+              variant="outline" 
+              onClick={() => navigate("/")}
+              className="w-full"
+            >
+              Return to Home
+            </Button>
+          </CardFooter>
+        </Card>
       </div>
     </main>
   );

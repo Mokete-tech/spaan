@@ -1,11 +1,10 @@
-
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CreditCard, Ban } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
-import { getPaymentProcessor, initPayoneerCheckout, getPayFastCheckoutUrl, processPayment } from "@/integrations/payments";
+import { generatePayFastCheckout, processPayment } from "@/utils/paymentProcessing";
 import { useAuth } from "@/context/AuthContext";
 
 interface PaymentDetails {
@@ -44,8 +43,11 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
           return;
         }
         
-        const detectedProcessor = await getPaymentProcessor();
-        setProcessor(detectedProcessor);
+        if (paymentDetails.currency === "ZAR") {
+          setProcessor("payfast");
+        } else {
+          setProcessor("payoneer");
+        }
       } catch (err) {
         console.error("Error detecting payment processor:", err);
         setError("Failed to determine the appropriate payment method");
@@ -55,21 +57,33 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
     };
     
     detectProcessor();
-  }, [user]);
+  }, [user, paymentDetails.currency]);
   
-  const handlePayFastCheckout = () => {
+  const handlePayFastCheckout = async () => {
     if (!user) return;
     
-    const checkoutUrl = getPayFastCheckoutUrl(
-      paymentDetails.amount,
-      paymentDetails.serviceId,
-      user.id,
-      paymentDetails.providerId,
-      paymentDetails.description
-    );
-    
-    // Redirect to PayFast
-    window.location.href = checkoutUrl;
+    try {
+      setIsLoading(true);
+      
+      const checkoutUrl = await generatePayFastCheckout({
+        serviceId: paymentDetails.serviceId,
+        providerId: paymentDetails.providerId,
+        buyerId: user.id,
+        amount: paymentDetails.amount,
+        description: paymentDetails.description,
+        email: user.email
+      });
+      
+      window.location.href = checkoutUrl;
+    } catch (err: any) {
+      console.error("PayFast checkout error:", err);
+      toast({
+        title: "Payment Error",
+        description: err.message || "Failed to initialize payment",
+        variant: "destructive",
+      });
+      setIsLoading(false);
+    }
   };
   
   const handlePayoneerCheckout = () => {
@@ -86,7 +100,6 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
       paymentDetails.description,
       async (response) => {
         try {
-          // Process the payment through our backend
           const result = await processPayment(
             paymentDetails.serviceId,
             user.id,

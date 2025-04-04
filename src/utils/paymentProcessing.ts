@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { withRetry, captureError } from "./errorHandling";
 import { toast } from "@/hooks/use-toast";
@@ -50,6 +49,39 @@ export const refreshSession = async () => {
     return data;
   } catch (error) {
     captureError(error, { context: 'refreshSession' });
+    throw error;
+  }
+};
+
+// Function to generate PayFast checkout URL
+export const generatePayFastCheckout = async (
+  paymentDetails: {
+    serviceId: string;
+    providerId: string;
+    buyerId: string;
+    amount: number;
+    description: string;
+    email?: string;
+  }
+) => {
+  try {
+    const { data, error } = await supabase.functions.invoke('payfast-payment', {
+      body: {
+        amount: paymentDetails.amount,
+        item_name: paymentDetails.description,
+        item_description: `Payment for service: ${paymentDetails.description}`,
+        email: paymentDetails.email,
+        custom_str1: paymentDetails.serviceId,
+        custom_str2: paymentDetails.buyerId,
+        custom_str3: paymentDetails.providerId,
+      }
+    });
+    
+    if (error) throw error;
+    return data.url;
+  } catch (error) {
+    console.error('Error generating PayFast checkout URL:', error);
+    captureError(error, { context: 'payfast_checkout' });
     throw error;
   }
 };
