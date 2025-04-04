@@ -22,18 +22,15 @@ const PaymentSuccess = () => {
   useEffect(() => {
     const fetchPaymentDetails = async () => {
       try {
-        // Get payment ID from URL query parameters
         const searchParams = new URLSearchParams(location.search);
         const transactionId = searchParams.get("transaction_id");
         const serviceId = searchParams.get("service");
         const paymentId = searchParams.get("payment_id");
         
-        // Try to get payment details using transaction ID first
         if (transactionId) {
-          // Use direct query instead of RPC functions to fix the type error
           const { data, error } = await supabase
             .from('payments')
-            .select('*')
+            .select('payment_id, transaction_id, amount, currency, status, service_id')
             .eq('transaction_id', transactionId)
             .single();
           
@@ -46,12 +43,10 @@ const PaymentSuccess = () => {
           }
         }
         
-        // Otherwise try to get by payment ID
         if (paymentId) {
-          // Use direct query instead of RPC functions to fix the type error
           const { data, error } = await supabase
             .from('payments')
-            .select('*')
+            .select('payment_id, transaction_id, amount, currency, status, service_id')
             .eq('payment_id', paymentId)
             .single();
           
@@ -64,7 +59,6 @@ const PaymentSuccess = () => {
           }
         }
         
-        // If still no payment found, we're done loading with no data
         setLoading(false);
       } catch (error) {
         console.error("Payment details fetch error:", error);
