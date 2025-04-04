@@ -38,7 +38,7 @@ const PaymentSuccess = () => {
           if (fnError) {
             console.error("Error fetching payment by transaction_id:", fnError);
           } else if (fnData) {
-            setPaymentData(fnData);
+            setPaymentData(fnData as PaymentData);
             setLoading(false);
             return;
           }
@@ -54,7 +54,7 @@ const PaymentSuccess = () => {
           if (fnError) {
             console.error("Error fetching payment by payment_id:", fnError);
           } else if (fnData) {
-            setPaymentData(fnData);
+            setPaymentData(fnData as PaymentData);
             setLoading(false);
             return;
           }
