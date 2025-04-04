@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -40,7 +40,7 @@ const PaymentSuccess = () => {
           if (error) {
             console.error("Error fetching payment by transaction_id:", error);
           } else if (data) {
-            setPaymentData(data as PaymentData);
+            setPaymentData(data);
             setLoading(false);
             return;
           }
@@ -58,7 +58,7 @@ const PaymentSuccess = () => {
           if (error) {
             console.error("Error fetching payment by payment_id:", error);
           } else if (data) {
-            setPaymentData(data as PaymentData);
+            setPaymentData(data);
             setLoading(false);
             return;
           }
