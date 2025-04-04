@@ -30,15 +30,17 @@ const PaymentSuccess = () => {
         
         // Try to get payment details using transaction ID first
         if (transactionId) {
-          const { data: fnData, error: fnError } = await supabase.rpc(
-            "get_payment_by_transaction_id", 
-            { transaction_id_param: transactionId }
-          );
+          // Use direct query instead of RPC functions to fix the type error
+          const { data, error } = await supabase
+            .from('payments')
+            .select('*')
+            .eq('transaction_id', transactionId)
+            .single();
           
-          if (fnError) {
-            console.error("Error fetching payment by transaction_id:", fnError);
-          } else if (fnData) {
-            setPaymentData(fnData as PaymentData);
+          if (error) {
+            console.error("Error fetching payment by transaction_id:", error);
+          } else if (data) {
+            setPaymentData(data as PaymentData);
             setLoading(false);
             return;
           }
@@ -46,15 +48,17 @@ const PaymentSuccess = () => {
         
         // Otherwise try to get by payment ID
         if (paymentId) {
-          const { data: fnData, error: fnError } = await supabase.rpc(
-            "get_payment_by_payment_id", 
-            { payment_id_param: paymentId }
-          );
+          // Use direct query instead of RPC functions to fix the type error
+          const { data, error } = await supabase
+            .from('payments')
+            .select('*')
+            .eq('payment_id', paymentId)
+            .single();
           
-          if (fnError) {
-            console.error("Error fetching payment by payment_id:", fnError);
-          } else if (fnData) {
-            setPaymentData(fnData as PaymentData);
+          if (error) {
+            console.error("Error fetching payment by payment_id:", error);
+          } else if (data) {
+            setPaymentData(data as PaymentData);
             setLoading(false);
             return;
           }
