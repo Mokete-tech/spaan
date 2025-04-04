@@ -1,9 +1,10 @@
+
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, CreditCard, Ban } from "lucide-react";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { generatePayFastCheckout, processPayment } from "@/utils/paymentProcessing";
 import { useAuth } from "@/context/AuthContext";
 
@@ -86,57 +87,58 @@ const PaymentProcessor: React.FC<PaymentProcessorProps> = ({
     }
   };
   
+  // Mock Payoneer checkout function
   const handlePayoneerCheckout = () => {
     if (!user) return;
     
     setIsLoading(true);
     
-    initPayoneerCheckout(
-      paymentDetails.amount,
-      paymentDetails.currency,
-      paymentDetails.serviceId,
-      user.id,
-      paymentDetails.providerId,
-      paymentDetails.description,
-      async (response) => {
-        try {
-          const result = await processPayment(
-            paymentDetails.serviceId,
-            user.id,
-            paymentDetails.providerId,
-            paymentDetails.amount,
-            paymentDetails.currency,
-            "payoneer",
-            { payoneer_transaction_id: response.transaction_id }
-          );
-          
-          if (result.success) {
-            toast({
-              title: "Payment successful",
-              description: "Your payment has been processed successfully",
-            });
-            
-            if (onSuccess) {
-              onSuccess(result.transaction_id);
-            } else {
-              navigate("/payment-success");
-            }
-          } else {
-            throw new Error(result.message || "Payment failed");
-          }
-        } catch (err: any) {
-          console.error("Payment error:", err);
+    // This would use the actual Payoneer SDK in a real implementation
+    // For now, we'll simulate the process with a timeout
+    setTimeout(async () => {
+      try {
+        // Mock response
+        const mockResponse = {
+          transaction_id: `pyn_${Date.now()}_${Math.floor(Math.random() * 1000)}`,
+          status: "success"
+        };
+        
+        // Process the payment
+        const result = await processPayment({
+          serviceId: paymentDetails.serviceId,
+          providerId: paymentDetails.providerId,
+          amount: paymentDetails.amount,
+          currency: paymentDetails.currency,
+          description: paymentDetails.description,
+          paymentMethod: "payoneer"
+        });
+        
+        if (result.success) {
           toast({
-            title: "Payment failed",
-            description: err.message || "There was an error processing your payment",
-            variant: "destructive",
+            title: "Payment successful",
+            description: "Your payment has been processed successfully",
           });
-          setError("Payment processing failed. Please try again.");
-        } finally {
-          setIsLoading(false);
+          
+          if (onSuccess) {
+            onSuccess(result.transaction_id);
+          } else {
+            navigate("/payment-success");
+          }
+        } else {
+          throw new Error(result.message || "Payment failed");
         }
+      } catch (err: any) {
+        console.error("Payment error:", err);
+        toast({
+          title: "Payment failed",
+          description: err.message || "There was an error processing your payment",
+          variant: "destructive",
+        });
+        setError("Payment processing failed. Please try again.");
+      } finally {
+        setIsLoading(false);
       }
-    );
+    }, 1000);
   };
   
   const handleCancel = () => {

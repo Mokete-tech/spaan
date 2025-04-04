@@ -86,7 +86,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       
       const userProfile = await fetchUserProfile(user.id);
       setProfile(userProfile);
-      return userProfile;
     } catch (error) {
       captureError(error, { context: 'AuthProvider.refreshProfile' });
       console.error('Error refreshing profile:', error);

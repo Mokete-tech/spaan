@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createHash } from "https://deno.land/std@0.177.0/hash/mod.ts";
+import { createHash } from "https://deno.land/std@0.193.0/hash/mod.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // CORS headers
@@ -143,10 +143,16 @@ serve(async (req) => {
     }
 
     // Return success to PayFast
-    return new Response("OK", { status: 200 });
+    return new Response("OK", { 
+      headers: { ...corsHeaders },
+      status: 200 
+    });
     
   } catch (error) {
     console.error("Error processing ITN:", error);
-    return new Response("Internal Server Error", { status: 500 });
+    return new Response("Internal Server Error", { 
+      headers: { ...corsHeaders },
+      status: 500 
+    });
   }
 });

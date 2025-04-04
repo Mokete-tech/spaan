@@ -72,3 +72,4 @@ function_dir = "./functions"
 # Allow unauthenticated access to the PayFast notification endpoint
 [functions.payfast-notify]
 verify_jwt = false
+

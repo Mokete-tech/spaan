@@ -8,6 +8,15 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { CheckCircle, ArrowRight } from "lucide-react";
 import { useAuth } from "@/context/AuthContext";
 
+interface PaymentData {
+  payment_id?: string;
+  transaction_id?: string;
+  amount: number;
+  currency: string;
+  status: string;
+  service_id?: string;
+}
+
 const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const { toast } = useToast();
@@ -15,7 +24,7 @@ const PaymentSuccess = () => {
   const { user } = useAuth();
   
   const [isLoading, setIsLoading] = useState(true);
-  const [paymentDetails, setPaymentDetails] = useState<any>(null);
+  const [paymentDetails, setPaymentDetails] = useState<PaymentData | null>(null);
   
   // Extract payment ID from URL parameters
   const serviceId = searchParams.get("service");
@@ -30,11 +39,10 @@ const PaymentSuccess = () => {
       try {
         // Find the payment in our database
         if (paymentId) {
-          const { data, error } = await supabase
-            .from("payments")
-            .select("*")
-            .eq("transaction_id", paymentId)
-            .maybeSingle();
+          // Use RPC call for custom tables not defined in types
+          const { data, error } = await supabase.rpc('get_payment_by_transaction_id', {
+            transaction_id_param: paymentId
+          });
             
           if (data) {
             setPaymentDetails(data);
@@ -45,11 +53,9 @@ const PaymentSuccess = () => {
         
         // If we have a merchant payment ID, try that instead
         if (m_payment_id) {
-          const { data, error } = await supabase
-            .from("payments")
-            .select("*")
-            .eq("payment_id", m_payment_id)
-            .maybeSingle();
+          const { data, error } = await supabase.rpc('get_payment_by_payment_id', {
+            payment_id_param: m_payment_id
+          });
             
           if (data) {
             setPaymentDetails(data);
