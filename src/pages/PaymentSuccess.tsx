@@ -23,6 +23,21 @@ interface PaymentData {
   };
 }
 
+// Define the type for the database record
+interface PaymentRecord {
+  transaction_id: string;
+  amount: number;
+  currency: string;
+  status: string;
+  payment_id: string;
+  payment_details: {
+    amount_fee?: number;
+    amount_net?: number;
+    custom_str1?: string;
+    [key: string]: any;
+  };
+}
+
 const PaymentSuccess = () => {
   const location = useLocation();
   const [loading, setLoading] = useState(true);
@@ -45,16 +60,18 @@ const PaymentSuccess = () => {
         let foundPayment = false;
         
         if (transactionId) {
-          // Using select with explicit columns instead of querying RPC functions
-          const { data, error } = await supabase
+          const result = await supabase
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('transaction_id', transactionId)
-            .maybeSingle(); // Using maybeSingle instead of single to avoid errors
+            .maybeSingle();
           
-          if (error) {
-            console.error("Error fetching payment by transaction_id:", error);
-          } else if (data) {
+          if (result.error) {
+            console.error("Error fetching payment by transaction_id:", result.error);
+          } else if (result.data) {
+            // Type assertion after validation
+            const data = result.data as PaymentRecord;
+            
             // Manually construct the payment data object
             const payment: PaymentData = {
               transaction_id: data.transaction_id,
@@ -72,15 +89,18 @@ const PaymentSuccess = () => {
         }
         
         if (!foundPayment && paymentId) {
-          const { data, error } = await supabase
+          const result = await supabase
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('payment_id', paymentId)
             .maybeSingle();
           
-          if (error) {
-            console.error("Error fetching payment by payment_id:", error);
-          } else if (data) {
+          if (result.error) {
+            console.error("Error fetching payment by payment_id:", result.error);
+          } else if (result.data) {
+            // Type assertion after validation
+            const data = result.data as PaymentRecord;
+            
             // Manually construct the payment data object
             const payment: PaymentData = {
               transaction_id: data.transaction_id,

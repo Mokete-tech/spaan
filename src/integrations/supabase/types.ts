@@ -58,18 +58,22 @@ export type Database = {
         Row: {
           amount: number
           buyer_id: string
+          commission: number | null
           conversion_fee: number | null
           created_at: string
           currency: string
           escrow_fee: number | null
           escrow_transaction_id: string | null
           id: string
+          net_after_payfast: number | null
           net_amount: number
+          payfast_fee: number | null
           payment_details: Json | null
           payment_method: string | null
           payoneer_transaction_id: string | null
           payout_method: string | null
           platform_fee: number
+          provider_amount: number | null
           provider_id: string
           service_id: string | null
           status: string
@@ -78,18 +82,22 @@ export type Database = {
         Insert: {
           amount: number
           buyer_id: string
+          commission?: number | null
           conversion_fee?: number | null
           created_at?: string
           currency?: string
           escrow_fee?: number | null
           escrow_transaction_id?: string | null
           id?: string
+          net_after_payfast?: number | null
           net_amount: number
+          payfast_fee?: number | null
           payment_details?: Json | null
           payment_method?: string | null
           payoneer_transaction_id?: string | null
           payout_method?: string | null
           platform_fee: number
+          provider_amount?: number | null
           provider_id: string
           service_id?: string | null
           status?: string
@@ -98,18 +106,22 @@ export type Database = {
         Update: {
           amount?: number
           buyer_id?: string
+          commission?: number | null
           conversion_fee?: number | null
           created_at?: string
           currency?: string
           escrow_fee?: number | null
           escrow_transaction_id?: string | null
           id?: string
+          net_after_payfast?: number | null
           net_amount?: number
+          payfast_fee?: number | null
           payment_details?: Json | null
           payment_method?: string | null
           payoneer_transaction_id?: string | null
           payout_method?: string | null
           platform_fee?: number
+          provider_amount?: number | null
           provider_id?: string
           service_id?: string | null
           status?: string
