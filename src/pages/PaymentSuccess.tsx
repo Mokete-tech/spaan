@@ -55,7 +55,7 @@ const PaymentSuccess = () => {
           if (error) {
             console.error("Error fetching payment by transaction_id:", error);
           } else if (data) {
-            // Use type assertion to help TypeScript
+            // Manually construct the payment data object
             const payment: PaymentData = {
               transaction_id: data.transaction_id,
               amount: data.amount,
@@ -81,7 +81,7 @@ const PaymentSuccess = () => {
           if (error) {
             console.error("Error fetching payment by payment_id:", error);
           } else if (data) {
-            // Use type assertion to help TypeScript
+            // Manually construct the payment data object
             const payment: PaymentData = {
               transaction_id: data.transaction_id,
               amount: data.amount,
