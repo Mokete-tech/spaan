@@ -1,11 +1,11 @@
 
 import { useEffect, useState } from "react";
 import { useLocation, Link } from "react-router-dom";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Loader2, CheckCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { toast } from "@/hooks/use-toast";
+import PaymentSuccessDisplay from "@/components/payment/PaymentSuccessDisplay";
 
 // Define a simpler interface for payment data
 interface PaymentData {
@@ -105,14 +105,6 @@ const PaymentSuccess = () => {
     fetchPaymentDetails();
   }, [location.search]);
   
-  // Calculate commission and provider amounts
-  const commissionRate = 0.05; // 5% platform fee
-  const grossAmount = paymentData?.amount || 0;
-  const payfastFee = paymentData?.payment_details?.amount_fee || 0;
-  const netAfterFees = paymentData?.payment_details?.amount_net || (grossAmount - payfastFee);
-  const commission = netAfterFees * commissionRate;
-  const providerAmount = netAfterFees - commission;
-  
   return (
     <div className="container mx-auto py-12 px-4">
       <Card className="max-w-md mx-auto">
@@ -135,72 +127,7 @@ const PaymentSuccess = () => {
               </Button>
             </div>
           ) : paymentData ? (
-            <div className="space-y-4">
-              <div className="flex justify-center mb-6">
-                <CheckCircle className="h-16 w-16 text-green-500" />
-              </div>
-              
-              {/* Payment amount and breakdown */}
-              <div className="bg-gray-50 p-4 rounded-md">
-                <h3 className="text-lg font-semibold mb-2 text-center">Payment Details</h3>
-                <div className="space-y-2 text-sm">
-                  <div className="flex justify-between">
-                    <span>Gross Amount:</span>
-                    <span>{paymentData.currency} {grossAmount.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span>PayFast Fee:</span>
-                    <span>- {paymentData.currency} {payfastFee.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span>Net After PayFast:</span>
-                    <span>{paymentData.currency} {netAfterFees.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between">
-                    <span>Spaan Commission (5%):</span>
-                    <span>- {paymentData.currency} {commission.toFixed(2)}</span>
-                  </div>
-                  
-                  <div className="flex justify-between font-semibold border-t pt-2 mt-1">
-                    <span>Provider Receives:</span>
-                    <span>{paymentData.currency} {providerAmount.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-              
-              {paymentData?.transaction_id && (
-                <div className="text-center">
-                  <p className="text-gray-500 text-sm mb-1">Transaction Reference</p>
-                  <p className="font-medium break-all">{paymentData.transaction_id}</p>
-                </div>
-              )}
-              
-              {paymentData?.status && (
-                <div className="text-center">
-                  <p className="text-gray-500 text-sm mb-1">Status</p>
-                  <p className="font-medium">
-                    <span className="inline-block px-2 py-1 rounded-full bg-green-100 text-green-800">
-                      {paymentData.status}
-                    </span>
-                  </p>
-                </div>
-              )}
-              
-              <div className="flex flex-col gap-4 mt-8">
-                <Button asChild className="w-full">
-                  <Link to="/">Return to homepage</Link>
-                </Button>
-                
-                {paymentData.service_id && (
-                  <Button asChild variant="outline">
-                    <Link to={`/services/${paymentData.service_id}`}>View Service Details</Link>
-                  </Button>
-                )}
-              </div>
-            </div>
+            <PaymentSuccessDisplay paymentData={paymentData} />
           ) : (
             <div className="text-center py-6">
               <p className="text-gray-500">No payment details found.</p>
