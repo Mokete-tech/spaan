@@ -7,7 +7,7 @@ import { Loader2, CheckCircle } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "@/hooks/use-toast";
 
-// Explicitly define a simpler interface for payment data to avoid TypeScript inference issues
+// Define a simpler interface for payment data
 interface PaymentData {
   payment_id?: string;
   transaction_id?: string;
@@ -16,21 +16,6 @@ interface PaymentData {
   service_id?: string;
   currency?: string;
   payment_details?: {
-    amount_fee?: number;
-    amount_net?: number;
-    custom_str1?: string;
-    [key: string]: any;
-  };
-}
-
-// Define the type for the database record
-interface PaymentRecord {
-  transaction_id: string;
-  amount: number;
-  currency: string;
-  status: string;
-  payment_id: string;
-  payment_details: {
     amount_fee?: number;
     amount_net?: number;
     custom_str1?: string;
@@ -69,18 +54,14 @@ const PaymentSuccess = () => {
           if (result.error) {
             console.error("Error fetching payment by transaction_id:", result.error);
           } else if (result.data) {
-            // Type assertion after validation
-            const data = result.data as PaymentRecord;
-            
-            // Manually construct the payment data object
             const payment: PaymentData = {
-              transaction_id: data.transaction_id,
-              amount: data.amount,
-              currency: data.currency,
-              status: data.status,
-              payment_id: data.payment_id,
-              payment_details: data.payment_details,
-              service_id: data.payment_details?.custom_str1
+              transaction_id: result.data.transaction_id,
+              amount: result.data.amount,
+              currency: result.data.currency,
+              status: result.data.status,
+              payment_id: result.data.payment_id,
+              payment_details: result.data.payment_details,
+              service_id: result.data.payment_details?.custom_str1
             };
             
             setPaymentData(payment);
@@ -98,18 +79,14 @@ const PaymentSuccess = () => {
           if (result.error) {
             console.error("Error fetching payment by payment_id:", result.error);
           } else if (result.data) {
-            // Type assertion after validation
-            const data = result.data as PaymentRecord;
-            
-            // Manually construct the payment data object
             const payment: PaymentData = {
-              transaction_id: data.transaction_id,
-              amount: data.amount,
-              currency: data.currency,
-              status: data.status,
-              payment_id: data.payment_id,
-              payment_details: data.payment_details,
-              service_id: data.payment_details?.custom_str1
+              transaction_id: result.data.transaction_id,
+              amount: result.data.amount,
+              currency: result.data.currency,
+              status: result.data.status,
+              payment_id: result.data.payment_id,
+              payment_details: result.data.payment_details,
+              service_id: result.data.payment_details?.custom_str1
             };
             
             setPaymentData(payment);
