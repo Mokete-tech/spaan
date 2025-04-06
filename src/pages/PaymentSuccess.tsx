@@ -50,7 +50,8 @@ const PaymentSuccess = () => {
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('transaction_id', transactionId)
-            .maybeSingle();
+            .limit(1)
+            .single();
           
           if (transactionError) {
             console.error("Error fetching payment by transaction_id:", transactionError);
@@ -76,7 +77,8 @@ const PaymentSuccess = () => {
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('payment_id', paymentId)
-            .maybeSingle();
+            .limit(1)
+            .single();
           
           if (paymentError) {
             console.error("Error fetching payment by payment_id:", paymentError);
