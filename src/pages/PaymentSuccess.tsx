@@ -48,22 +48,22 @@ const PaymentSuccess = () => {
           // Query by transaction_id
           const { data, error: transactionError } = await supabase
             .from('payments')
-            .select('transaction_id, amount, currency, status, payment_details, payment_id')
+            .select('*')
             .eq('transaction_id', transactionId)
-            .limit(1)
-            .single();
+            .limit(1);
           
           if (transactionError) {
             console.error("Error fetching payment by transaction_id:", transactionError);
-          } else if (data) {
+          } else if (data && data.length > 0) {
+            const paymentRow = data[0];
             const payment: PaymentData = {
-              transaction_id: data.transaction_id,
-              amount: data.amount,
-              currency: data.currency,
-              status: data.status,
-              payment_id: data.payment_id,
-              payment_details: data.payment_details,
-              service_id: data.payment_details?.custom_str1
+              transaction_id: paymentRow.transaction_id,
+              amount: paymentRow.amount,
+              currency: paymentRow.currency,
+              status: paymentRow.status,
+              payment_id: paymentRow.payment_id || paymentRow.id,
+              payment_details: paymentRow.payment_details,
+              service_id: paymentRow.payment_details?.custom_str1 || paymentRow.service_id
             };
             
             setPaymentData(payment);
@@ -75,22 +75,22 @@ const PaymentSuccess = () => {
           // Query by payment_id as fallback
           const { data, error: paymentError } = await supabase
             .from('payments')
-            .select('transaction_id, amount, currency, status, payment_details, payment_id')
+            .select('*')
             .eq('payment_id', paymentId)
-            .limit(1)
-            .single();
+            .limit(1);
           
           if (paymentError) {
             console.error("Error fetching payment by payment_id:", paymentError);
-          } else if (data) {
+          } else if (data && data.length > 0) {
+            const paymentRow = data[0];
             const payment: PaymentData = {
-              transaction_id: data.transaction_id,
-              amount: data.amount,
-              currency: data.currency,
-              status: data.status,
-              payment_id: data.payment_id,
-              payment_details: data.payment_details,
-              service_id: data.payment_details?.custom_str1
+              transaction_id: paymentRow.transaction_id,
+              amount: paymentRow.amount,
+              currency: paymentRow.currency,
+              status: paymentRow.status,
+              payment_id: paymentRow.payment_id || paymentRow.id,
+              payment_details: paymentRow.payment_details,
+              service_id: paymentRow.payment_details?.custom_str1 || paymentRow.service_id
             };
             
             setPaymentData(payment);
