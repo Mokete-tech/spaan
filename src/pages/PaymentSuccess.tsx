@@ -7,7 +7,7 @@ import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { PaymentSuccessDisplay } from "@/components/payment";
 
-// Define a simpler interface for payment data
+// Define a simpler interface for payment data that matches our expected structure
 interface PaymentData {
   payment_id?: string;
   transaction_id?: string;
@@ -56,14 +56,21 @@ const PaymentSuccess = () => {
             console.error("Error fetching payment by transaction_id:", transactionError);
           } else if (data && data.length > 0) {
             const paymentRow = data[0];
+            console.log("Payment data:", paymentRow);
+            
+            // Create a normalized payment object from the database row
             const payment: PaymentData = {
-              transaction_id: paymentRow.transaction_id,
+              transaction_id: paymentRow.transaction_id || paymentRow.escrow_transaction_id,
               amount: paymentRow.amount,
               currency: paymentRow.currency,
               status: paymentRow.status,
               payment_id: paymentRow.payment_id || paymentRow.id,
-              payment_details: paymentRow.payment_details,
-              service_id: paymentRow.payment_details?.custom_str1 || paymentRow.service_id
+              payment_details: typeof paymentRow.payment_details === 'object' 
+                ? paymentRow.payment_details 
+                : { amount_fee: paymentRow.payfast_fee, amount_net: paymentRow.net_after_payfast },
+              service_id: (typeof paymentRow.payment_details === 'object' 
+                ? paymentRow.payment_details.custom_str1 
+                : null) || paymentRow.service_id
             };
             
             setPaymentData(payment);
@@ -83,14 +90,21 @@ const PaymentSuccess = () => {
             console.error("Error fetching payment by payment_id:", paymentError);
           } else if (data && data.length > 0) {
             const paymentRow = data[0];
+            console.log("Payment data from payment_id:", paymentRow);
+            
+            // Create a normalized payment object from the database row
             const payment: PaymentData = {
-              transaction_id: paymentRow.transaction_id,
+              transaction_id: paymentRow.transaction_id || paymentRow.escrow_transaction_id,
               amount: paymentRow.amount,
               currency: paymentRow.currency,
               status: paymentRow.status,
               payment_id: paymentRow.payment_id || paymentRow.id,
-              payment_details: paymentRow.payment_details,
-              service_id: paymentRow.payment_details?.custom_str1 || paymentRow.service_id
+              payment_details: typeof paymentRow.payment_details === 'object' 
+                ? paymentRow.payment_details 
+                : { amount_fee: paymentRow.payfast_fee, amount_net: paymentRow.net_after_payfast },
+              service_id: (typeof paymentRow.payment_details === 'object' 
+                ? paymentRow.payment_details.custom_str1 
+                : null) || paymentRow.service_id
             };
             
             setPaymentData(payment);
