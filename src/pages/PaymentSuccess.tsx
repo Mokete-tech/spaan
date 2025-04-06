@@ -5,7 +5,7 @@ import { Card, CardHeader, CardTitle, CardDescription, CardContent } from "@/com
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import PaymentSuccessDisplay from "@/components/payment/PaymentSuccessDisplay";
+import { PaymentSuccessDisplay } from "@/components/payment";
 
 // Define a simpler interface for payment data
 interface PaymentData {
