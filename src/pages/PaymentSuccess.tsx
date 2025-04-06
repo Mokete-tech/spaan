@@ -46,7 +46,7 @@ const PaymentSuccess = () => {
         
         if (transactionId) {
           // Query by transaction_id
-          const { data: paymentData, error: transactionError } = await supabase
+          const { data, error: transactionError } = await supabase
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('transaction_id', transactionId)
@@ -54,15 +54,15 @@ const PaymentSuccess = () => {
           
           if (transactionError) {
             console.error("Error fetching payment by transaction_id:", transactionError);
-          } else if (paymentData) {
+          } else if (data) {
             const payment: PaymentData = {
-              transaction_id: paymentData.transaction_id,
-              amount: paymentData.amount,
-              currency: paymentData.currency,
-              status: paymentData.status,
-              payment_id: paymentData.payment_id,
-              payment_details: paymentData.payment_details,
-              service_id: paymentData.payment_details?.custom_str1
+              transaction_id: data.transaction_id,
+              amount: data.amount,
+              currency: data.currency,
+              status: data.status,
+              payment_id: data.payment_id,
+              payment_details: data.payment_details,
+              service_id: data.payment_details?.custom_str1
             };
             
             setPaymentData(payment);
@@ -72,7 +72,7 @@ const PaymentSuccess = () => {
         
         if (!foundPayment && paymentId) {
           // Query by payment_id as fallback
-          const { data: paymentData, error: paymentError } = await supabase
+          const { data, error: paymentError } = await supabase
             .from('payments')
             .select('transaction_id, amount, currency, status, payment_details, payment_id')
             .eq('payment_id', paymentId)
@@ -80,15 +80,15 @@ const PaymentSuccess = () => {
           
           if (paymentError) {
             console.error("Error fetching payment by payment_id:", paymentError);
-          } else if (paymentData) {
+          } else if (data) {
             const payment: PaymentData = {
-              transaction_id: paymentData.transaction_id,
-              amount: paymentData.amount,
-              currency: paymentData.currency,
-              status: paymentData.status,
-              payment_id: paymentData.payment_id,
-              payment_details: paymentData.payment_details,
-              service_id: paymentData.payment_details?.custom_str1
+              transaction_id: data.transaction_id,
+              amount: data.amount,
+              currency: data.currency,
+              status: data.status,
+              payment_id: data.payment_id,
+              payment_details: data.payment_details,
+              service_id: data.payment_details?.custom_str1
             };
             
             setPaymentData(payment);
