@@ -68,7 +68,7 @@ const Navbar = () => {
               ) : !isAuthPage && (
                 <NavigationMenuItem>
                   <Link to="/auth">
-                    <Button variant="primary" size="sm" className="bg-spaan-primary hover:bg-spaan-primary/90">
+                    <Button variant="default" size="sm" className="bg-spaan-primary hover:bg-spaan-primary/90 text-white">
                       Sign In
                     </Button>
                   </Link>
@@ -110,7 +110,7 @@ const Navbar = () => {
                   </>
                 ) : !isAuthPage && (
                   <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
-                    <Button variant="primary" size="sm" className="w-full bg-spaan-primary hover:bg-spaan-primary/90">
+                    <Button variant="default" size="sm" className="w-full bg-spaan-primary hover:bg-spaan-primary/90 text-white">
                       Sign In
                     </Button>
                   </Link>
