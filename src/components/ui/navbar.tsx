@@ -1,18 +1,23 @@
+
 import React, { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@/components/ui/navigation-menu";
 import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context/AuthContext";
+import { useAuth } from "@/context";
 import { Menu, ShoppingCart } from "lucide-react";
+
 const Navbar = () => {
-  const {
-    user,
-    signOut
-  } = useAuth();
+  const { user, signOut } = useAuth();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const location = useLocation();
+  
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
   };
+  
+  // Don't show sign-in button on the auth page
+  const isAuthPage = location.pathname === "/auth";
+  
   return <div className="border-b bg-white sticky top-0 z-50">
       <div className="container py-4">
         <div className="flex justify-between items-center">
@@ -31,10 +36,6 @@ const Navbar = () => {
           <NavigationMenu className="hidden md:block">
             <NavigationMenuList className="flex items-center space-x-6">
               <NavigationMenuItem>
-                
-              </NavigationMenuItem>
-
-              <NavigationMenuItem>
                 <Link to="/gigs" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                   Find Gigs
                 </Link>
@@ -46,7 +47,8 @@ const Navbar = () => {
                 </Link>
               </NavigationMenuItem>
 
-              {user ? <>
+              {user ? (
+                <>
                   <NavigationMenuItem>
                     <Link to="/cart" className="text-gray-700 hover:text-blue-600 transition-colors px-2 py-1">
                       <ShoppingCart className="h-5 w-5" />
@@ -62,18 +64,22 @@ const Navbar = () => {
                       Sign Out
                     </Button>
                   </NavigationMenuItem>
-                </> : <NavigationMenuItem>
+                </>
+              ) : !isAuthPage && (
+                <NavigationMenuItem>
                   <Link to="/auth">
                     <Button variant="outline" size="sm">
                       Sign In
                     </Button>
                   </Link>
-                </NavigationMenuItem>}
+                </NavigationMenuItem>
+              )}
             </NavigationMenuList>
           </NavigationMenu>
           
           {/* Mobile Navigation */}
-          {isMobileMenuOpen && <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-md p-4 z-50 border-b">
+          {isMobileMenuOpen && (
+            <div className="md:hidden absolute top-16 left-0 right-0 bg-white shadow-md p-4 z-50 border-b">
               <nav className="flex flex-col space-y-4">
                 <Link to="/" className="text-gray-700 hover:text-blue-600 transition-colors py-2" onClick={() => setIsMobileMenuOpen(false)}>
                   Home
@@ -84,7 +90,8 @@ const Navbar = () => {
                 <Link to="/post-job" className="text-gray-700 hover:text-blue-600 transition-colors py-2" onClick={() => setIsMobileMenuOpen(false)}>
                   Post a Job
                 </Link>
-                {user ? <>
+                {user ? (
+                  <>
                     <Link to="/cart" className="text-gray-700 hover:text-blue-600 transition-colors py-2" onClick={() => setIsMobileMenuOpen(false)}>
                       <div className="flex items-center">
                         <ShoppingCart className="h-5 w-5 mr-2" />
@@ -95,20 +102,25 @@ const Navbar = () => {
                       Profile
                     </Link>
                     <Button variant="outline" size="sm" onClick={() => {
-                signOut();
-                setIsMobileMenuOpen(false);
-              }} className="w-full">
+                      signOut();
+                      setIsMobileMenuOpen(false);
+                    }} className="w-full">
                       Sign Out
                     </Button>
-                  </> : <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
+                  </>
+                ) : !isAuthPage && (
+                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full">
                     <Button variant="outline" size="sm" className="w-full">
                       Sign In
                     </Button>
-                  </Link>}
+                  </Link>
+                )}
               </nav>
-            </div>}
+            </div>
+          )}
         </div>
       </div>
     </div>;
 };
+
 export default Navbar;
