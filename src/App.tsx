@@ -1,7 +1,7 @@
 
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Toaster } from "@/components/ui/sonner";
-import { AuthProvider } from "@/context/AuthContext";
+import { AuthProvider } from "@/context";
 import Navbar from "@/components/ui/navbar";
 import { useEffect } from "react";
 import { initSentry } from "@/utils/errorHandling";
