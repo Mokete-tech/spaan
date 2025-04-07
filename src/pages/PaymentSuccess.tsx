@@ -49,7 +49,7 @@ const PaymentSuccess = () => {
           const { data, error: transactionError } = await supabase
             .from('payments')
             .select('*')
-            .eq('transaction_id', transactionId)
+            .eq('escrow_transaction_id', transactionId)
             .limit(1);
           
           if (transactionError) {
@@ -60,17 +60,15 @@ const PaymentSuccess = () => {
             
             // Create a normalized payment object from the database row
             const payment: PaymentData = {
-              transaction_id: paymentRow.transaction_id || paymentRow.escrow_transaction_id,
+              transaction_id: paymentRow.escrow_transaction_id,
               amount: paymentRow.amount,
               currency: paymentRow.currency,
               status: paymentRow.status,
-              payment_id: paymentRow.payment_id || paymentRow.id,
+              payment_id: paymentRow.id,
               payment_details: typeof paymentRow.payment_details === 'object' 
                 ? paymentRow.payment_details 
                 : { amount_fee: paymentRow.payfast_fee, amount_net: paymentRow.net_after_payfast },
-              service_id: (typeof paymentRow.payment_details === 'object' 
-                ? paymentRow.payment_details.custom_str1 
-                : null) || paymentRow.service_id
+              service_id: paymentRow.service_id
             };
             
             setPaymentData(payment);
@@ -83,7 +81,7 @@ const PaymentSuccess = () => {
           const { data, error: paymentError } = await supabase
             .from('payments')
             .select('*')
-            .eq('payment_id', paymentId)
+            .eq('id', paymentId)
             .limit(1);
           
           if (paymentError) {
@@ -94,17 +92,15 @@ const PaymentSuccess = () => {
             
             // Create a normalized payment object from the database row
             const payment: PaymentData = {
-              transaction_id: paymentRow.transaction_id || paymentRow.escrow_transaction_id,
+              transaction_id: paymentRow.escrow_transaction_id,
               amount: paymentRow.amount,
               currency: paymentRow.currency,
               status: paymentRow.status,
-              payment_id: paymentRow.payment_id || paymentRow.id,
+              payment_id: paymentRow.id,
               payment_details: typeof paymentRow.payment_details === 'object' 
                 ? paymentRow.payment_details 
                 : { amount_fee: paymentRow.payfast_fee, amount_net: paymentRow.net_after_payfast },
-              service_id: (typeof paymentRow.payment_details === 'object' 
-                ? paymentRow.payment_details.custom_str1 
-                : null) || paymentRow.service_id
+              service_id: paymentRow.service_id
             };
             
             setPaymentData(payment);
