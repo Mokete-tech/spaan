@@ -7,6 +7,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import SocialShare from "./social-share";
 
 interface ServiceCardProps {
   id: string;
@@ -72,6 +73,11 @@ const ServiceCard = ({
     });
   };
 
+  // Generate a shareable URL for this specific service
+  const shareUrl = `${window.location.origin}/gigs/${id}`;
+  const shareTitle = `Check out this gig on Spaan: ${title}`;
+  const shareDescription = `${title} by ${provider.name} on Spaan - Find or offer gigs in South Africa and beyond`;
+
   return (
     <Card
       className={cn(
@@ -106,14 +112,24 @@ const ServiceCard = ({
             Freelancer
           </Badge>
         )}
-        <button 
-          className="absolute top-3 right-3 bg-white/80 p-1.5 rounded-full shadow-sm hover:bg-white transition-colors"
-          onClick={handleFavoriteClick}
-          style={{ display: featured ? 'none' : 'block' }}
-          aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          <Heart className={cn("h-5 w-5 transition-colors", favorite ? "fill-red-500 text-red-500" : "text-gray-400")} />
-        </button>
+        <div className="absolute top-3 right-3 flex space-x-1">
+          {!featured && (
+            <button 
+              className="bg-white/80 p-1.5 rounded-full shadow-sm hover:bg-white transition-colors"
+              onClick={handleFavoriteClick}
+              aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              <Heart className={cn("h-5 w-5 transition-colors", favorite ? "fill-red-500 text-red-500" : "text-gray-400")} />
+            </button>
+          )}
+          <SocialShare 
+            url={shareUrl}
+            title={shareTitle}
+            description={shareDescription}
+            variant="icon"
+            className="bg-white/80 hover:bg-white"
+          />
+        </div>
       </div>
 
       <CardContent className="p-4">
