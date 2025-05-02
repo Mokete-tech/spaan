@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -8,6 +7,7 @@ import { Button } from "./ui/button";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
 import SocialShare from "./social-share";
+import ReactionButton from "./reaction-button";
 
 interface ServiceCardProps {
   id: string;
@@ -185,14 +185,21 @@ const ServiceCard = ({
         >
           Get Help
         </Button>
-        <Button 
-          variant="outline" 
-          className="border-blue-300 text-blue-600 hover:bg-blue-50"
-          onClick={handleContactClick}
-        >
-          <MessageSquare className="h-4 w-4 mr-2" />
-          Contact
-        </Button>
+        <div className="flex space-x-1">
+          <Button 
+            variant="outline" 
+            className="border-blue-300 text-blue-600 hover:bg-blue-50 flex-grow"
+            onClick={handleContactClick}
+          >
+            <MessageSquare className="h-4 w-4 mr-2" />
+            Contact
+          </Button>
+          <ReactionButton 
+            contentId={id} 
+            contentType="service" 
+            size="sm" 
+          />
+        </div>
       </div>
     </Card>
   );

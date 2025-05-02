@@ -5,7 +5,10 @@
     {
       "src": "package.json",
       "use": "@vercel/static-build",
-      "config": { "distDir": "dist" }
+      "config": { 
+        "distDir": "dist",
+        "zeroConfig": true
+      }
     }
   ],
   "routes": [
@@ -13,11 +16,45 @@
       "handle": "filesystem"
     },
     {
+      "src": "/assets/(.*)",
+      "headers": { 
+        "cache-control": "public, max-age=31536000, immutable" 
+      },
+      "continue": true
+    },
+    {
+      "src": "/(.*\\.(js|css|png|jpg|jpeg|svg|ico|webp|avif)$)",
+      "headers": { 
+        "cache-control": "public, max-age=31536000, immutable" 
+      },
+      "continue": true
+    },
+    {
       "src": "/.*",
       "dest": "/index.html"
     }
   ],
   "github": {
-    "silent": true
-  }
+    "silent": true,
+    "autoJobCancelation": true
+  },
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "X-Content-Type-Options",
+          "value": "nosniff"
+        },
+        {
+          "key": "X-Frame-Options",
+          "value": "DENY"
+        },
+        {
+          "key": "X-XSS-Protection",
+          "value": "1; mode=block"
+        }
+      ]
+    }
+  ]
 }
