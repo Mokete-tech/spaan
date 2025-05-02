@@ -41,28 +41,38 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Check if user has already reacted - use a raw query approach
-        const { data: reactionExists } = await supabase.rpc(
+        // Check if user has already reacted using RPC approach
+        const { data: reactionExists, error: checkError } = await supabase.rpc(
           'check_user_reaction',
           {
             content_id_param: contentId,
             content_type_param: contentType,
             user_id_param: userId
           }
-        );
+        ) as { data: boolean | null; error: any };
         
-        if (reactionExists) {
-          setReacted(true);
+        if (checkError) {
+          console.error('Error checking reaction:', checkError);
+          return;
         }
         
-        // Get total reactions count - use a raw query approach
-        const { data: reactionCount } = await supabase.rpc(
+        if (reactionExists) {
+          setReacted(!!reactionExists);
+        }
+        
+        // Get total reactions count using RPC approach
+        const { data: reactionCount, error: countError } = await supabase.rpc(
           'get_reaction_count',
           {
             content_id_param: contentId,
             content_type_param: contentType
           }
-        );
+        ) as { data: number | null; error: any };
+        
+        if (countError) {
+          console.error('Error getting reaction count:', countError);
+          return;
+        }
         
         setCount(reactionCount || 0);
       } catch (error) {
@@ -87,21 +97,27 @@ const ReactionButton = ({
       
       if (reacted) {
         // Remove reaction using stored procedure
-        await supabase.rpc(
+        const { error: deleteError } = await supabase.rpc(
           'delete_reaction', 
           {
             content_id_param: contentId,
             content_type_param: contentType,
             user_id_param: userId
           }
-        );
+        ) as { data: null; error: any };
+        
+        if (deleteError) {
+          console.error('Error deleting reaction:', deleteError);
+          toast.error("Failed to remove reaction");
+          return;
+        }
         
         setReacted(false);
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
         // Add reaction using stored procedure
-        await supabase.rpc(
+        const { error: addError } = await supabase.rpc(
           'add_reaction', 
           {
             content_id_param: contentId,
@@ -109,7 +125,13 @@ const ReactionButton = ({
             user_id_param: userId,
             reaction_type_param: 'tick'
           }
-        );
+        ) as { data: null; error: any };
+        
+        if (addError) {
+          console.error('Error adding reaction:', addError);
+          toast.error("Failed to add reaction");
+          return;
+        }
         
         setReacted(true);
         setCount(prev => prev + 1);
