@@ -41,25 +41,28 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Check if user has already reacted
-        const { data } = await supabase
-          .from('reactions')
-          .select('*')
-          .eq('content_id', contentId)
-          .eq('content_type', contentType)
-          .eq('user_id', userId)
-          .maybeSingle();
+        // Check if user has already reacted - use a raw query approach
+        const { data: reactionExists } = await supabase.rpc(
+          'check_user_reaction',
+          {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId
+          }
+        );
         
-        if (data) {
+        if (reactionExists) {
           setReacted(true);
         }
         
-        // Get total reactions count
-        const { count: reactionCount } = await supabase
-          .from('reactions')
-          .select('*', { count: 'exact', head: true })
-          .eq('content_id', contentId)
-          .eq('content_type', contentType);
+        // Get total reactions count - use a raw query approach
+        const { data: reactionCount } = await supabase.rpc(
+          'get_reaction_count',
+          {
+            content_id_param: contentId,
+            content_type_param: contentType
+          }
+        );
         
         setCount(reactionCount || 0);
       } catch (error) {
@@ -83,26 +86,30 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction using a raw query approach to work around type issues
-        await supabase
-          .rpc('delete_reaction', {
+        // Remove reaction using stored procedure
+        await supabase.rpc(
+          'delete_reaction', 
+          {
             content_id_param: contentId,
             content_type_param: contentType,
             user_id_param: userId
-          });
+          }
+        );
         
         setReacted(false);
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction using a raw query approach to work around type issues
-        await supabase
-          .rpc('add_reaction', {
+        // Add reaction using stored procedure
+        await supabase.rpc(
+          'add_reaction', 
+          {
             content_id_param: contentId,
             content_type_param: contentType,
             user_id_param: userId,
             reaction_type_param: 'tick'
-          });
+          }
+        );
         
         setReacted(true);
         setCount(prev => prev + 1);

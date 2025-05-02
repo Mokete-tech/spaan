@@ -79,3 +79,50 @@ BEGIN
   AND user_id = user_id_param;
 END;
 $$;
+
+-- Create function to check if user has reacted
+CREATE OR REPLACE FUNCTION public.check_user_reaction(
+  content_id_param UUID,
+  content_type_param TEXT,
+  user_id_param UUID
+)
+RETURNS BOOLEAN
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  reaction_exists BOOLEAN;
+BEGIN
+  SELECT EXISTS (
+    SELECT 1
+    FROM reactions
+    WHERE content_id = content_id_param
+    AND content_type = content_type_param
+    AND user_id = user_id_param
+  ) INTO reaction_exists;
+  
+  RETURN reaction_exists;
+END;
+$$;
+
+-- Create function to get reaction count
+CREATE OR REPLACE FUNCTION public.get_reaction_count(
+  content_id_param UUID,
+  content_type_param TEXT
+)
+RETURNS INTEGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+AS $$
+DECLARE
+  count_result INTEGER;
+BEGIN
+  SELECT COUNT(*)
+  FROM reactions
+  WHERE content_id = content_id_param
+  AND content_type = content_type_param
+  INTO count_result;
+  
+  RETURN count_result;
+END;
+$$;
