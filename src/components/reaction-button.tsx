@@ -41,40 +41,38 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Check if user has already reacted using RPC approach
-        const { data: reactionExists, error: checkError } = await supabase.rpc(
-          'check_user_reaction',
-          {
-            content_id_param: contentId,
-            content_type_param: contentType,
-            user_id_param: userId
+        // Use a stored function that returns boolean
+        const { data, error } = await supabase.functions.invoke('check_user_reaction', {
+          body: {
+            content_id: contentId,
+            content_type: contentType,
+            user_id: userId
           }
-        ) as { data: boolean | null; error: any };
+        });
         
-        if (checkError) {
-          console.error('Error checking reaction:', checkError);
+        if (error) {
+          console.error('Error checking reaction:', error);
           return;
         }
         
-        if (reactionExists) {
-          setReacted(!!reactionExists);
+        if (data?.exists) {
+          setReacted(!!data.exists);
         }
         
-        // Get total reactions count using RPC approach
-        const { data: reactionCount, error: countError } = await supabase.rpc(
-          'get_reaction_count',
-          {
-            content_id_param: contentId,
-            content_type_param: contentType
+        // Get total reactions count
+        const { data: countData, error: countError } = await supabase.functions.invoke('get_reaction_count', {
+          body: {
+            content_id: contentId,
+            content_type: contentType
           }
-        ) as { data: number | null; error: any };
+        });
         
         if (countError) {
           console.error('Error getting reaction count:', countError);
           return;
         }
         
-        setCount(reactionCount || 0);
+        setCount(countData?.count || 0);
       } catch (error) {
         console.error('Error checking reactions:', error);
       }
@@ -96,18 +94,17 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction using stored procedure
-        const { error: deleteError } = await supabase.rpc(
-          'delete_reaction', 
-          {
-            content_id_param: contentId,
-            content_type_param: contentType,
-            user_id_param: userId
+        // Remove reaction
+        const { error } = await supabase.functions.invoke('delete_reaction', {
+          body: {
+            content_id: contentId,
+            content_type: contentType,
+            user_id: userId
           }
-        ) as { data: null; error: any };
+        });
         
-        if (deleteError) {
-          console.error('Error deleting reaction:', deleteError);
+        if (error) {
+          console.error('Error deleting reaction:', error);
           toast.error("Failed to remove reaction");
           return;
         }
@@ -116,19 +113,18 @@ const ReactionButton = ({
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction using stored procedure
-        const { error: addError } = await supabase.rpc(
-          'add_reaction', 
-          {
-            content_id_param: contentId,
-            content_type_param: contentType,
-            user_id_param: userId,
-            reaction_type_param: 'tick'
+        // Add reaction
+        const { error } = await supabase.functions.invoke('add_reaction', {
+          body: {
+            content_id: contentId,
+            content_type: contentType,
+            user_id: userId,
+            reaction_type: 'tick'
           }
-        ) as { data: null; error: any };
+        });
         
-        if (addError) {
-          console.error('Error adding reaction:', addError);
+        if (error) {
+          console.error('Error adding reaction:', error);
           toast.error("Failed to add reaction");
           return;
         }
