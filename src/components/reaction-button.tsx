@@ -83,29 +83,26 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction
+        // Remove reaction using a raw query approach to work around type issues
         await supabase
-          .from('reactions')
-          .delete()
-          .eq('content_id', contentId)
-          .eq('content_type', contentType)
-          .eq('user_id', userId);
+          .rpc('delete_reaction', {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId
+          });
         
         setReacted(false);
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction
+        // Add reaction using a raw query approach to work around type issues
         await supabase
-          .from('reactions')
-          .insert([
-            { 
-              content_id: contentId,
-              content_type: contentType,
-              user_id: userId,
-              reaction_type: 'tick'
-            }
-          ]);
+          .rpc('add_reaction', {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId,
+            reaction_type_param: 'tick'
+          });
         
         setReacted(true);
         setCount(prev => prev + 1);
