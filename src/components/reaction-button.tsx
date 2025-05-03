@@ -57,11 +57,13 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Use rpc to call the check_user_reaction database function - correct type signature
-        const { data, error } = await supabase.rpc('check_user_reaction', {
-          content_id_param: contentId,
-          content_type_param: contentType,
-          user_id_param: userId
+        // Use the rpc function with the proper typing
+        const { data, error } = await supabase.functions.invoke<boolean>('check_user_reaction', {
+          body: {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId
+          }
         });
         
         if (error) {
@@ -71,10 +73,12 @@ const ReactionButton = ({
         
         setReacted(!!data);
         
-        // Get total reactions count using rpc - correct type signature
-        const { data: countData, error: countError } = await supabase.rpc('get_reaction_count', {
-          content_id_param: contentId,
-          content_type_param: contentType
+        // Get total reactions count using rpc with proper typing
+        const { data: countData, error: countError } = await supabase.functions.invoke<number>('get_reaction_count', {
+          body: {
+            content_id_param: contentId,
+            content_type_param: contentType
+          }
         });
         
         if (countError) {
@@ -105,11 +109,13 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction using rpc - correct type signature
-        const { error } = await supabase.rpc('delete_reaction', {
-          content_id_param: contentId,
-          content_type_param: contentType,
-          user_id_param: userId
+        // Remove reaction using rpc with proper typing
+        const { error } = await supabase.functions.invoke<void>('delete_reaction', {
+          body: {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId
+          }
         });
         
         if (error) {
@@ -122,12 +128,14 @@ const ReactionButton = ({
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction using rpc - correct type signature
-        const { error } = await supabase.rpc('add_reaction', {
-          content_id_param: contentId,
-          content_type_param: contentType,
-          user_id_param: userId,
-          reaction_type_param: 'tick'
+        // Add reaction using rpc with proper typing
+        const { error } = await supabase.functions.invoke<void>('add_reaction', {
+          body: {
+            content_id_param: contentId,
+            content_type_param: contentType,
+            user_id_param: userId,
+            reaction_type_param: 'tick'
+          }
         });
         
         if (error) {
