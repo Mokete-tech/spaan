@@ -57,8 +57,8 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Use rpc to call the check_user_reaction database function
-        const { data, error } = await supabase.rpc<boolean, CheckReactionParams>('check_user_reaction', {
+        // Use rpc to call the check_user_reaction database function - correct type signature
+        const { data, error } = await supabase.rpc('check_user_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId
@@ -71,8 +71,8 @@ const ReactionButton = ({
         
         setReacted(!!data);
         
-        // Get total reactions count using rpc
-        const { data: countData, error: countError } = await supabase.rpc<number, GetReactionCountParams>('get_reaction_count', {
+        // Get total reactions count using rpc - correct type signature
+        const { data: countData, error: countError } = await supabase.rpc('get_reaction_count', {
           content_id_param: contentId,
           content_type_param: contentType
         });
@@ -105,8 +105,8 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction using rpc
-        const { error } = await supabase.rpc<null, CheckReactionParams>('delete_reaction', {
+        // Remove reaction using rpc - correct type signature
+        const { error } = await supabase.rpc('delete_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId
@@ -122,8 +122,8 @@ const ReactionButton = ({
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction using rpc
-        const { error } = await supabase.rpc<null, AddReactionParams>('add_reaction', {
+        // Add reaction using rpc - correct type signature
+        const { error } = await supabase.rpc('add_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId,
