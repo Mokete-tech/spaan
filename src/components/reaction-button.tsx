@@ -66,7 +66,8 @@ const ReactionButton = ({
           return;
         }
         
-        setCount(countData || 0);
+        // Ensure countData is treated as a number
+        setCount(typeof countData === 'number' ? countData : 0);
       } catch (error) {
         console.error('Error checking reactions:', error);
       }
