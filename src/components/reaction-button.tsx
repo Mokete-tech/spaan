@@ -57,7 +57,7 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Use the rpc function with the proper typing
+        // Use the functions invoke with the proper typing
         const { data, error } = await supabase.functions.invoke<boolean>('check_user_reaction', {
           body: {
             content_id_param: contentId,
@@ -73,7 +73,7 @@ const ReactionButton = ({
         
         setReacted(!!data);
         
-        // Get total reactions count using rpc with proper typing
+        // Get total reactions count using functions invoke with proper typing
         const { data: countData, error: countError } = await supabase.functions.invoke<number>('get_reaction_count', {
           body: {
             content_id_param: contentId,
@@ -109,7 +109,7 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction using rpc with proper typing
+        // Remove reaction using functions invoke with proper typing
         const { error } = await supabase.functions.invoke<void>('delete_reaction', {
           body: {
             content_id_param: contentId,
@@ -128,7 +128,7 @@ const ReactionButton = ({
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction using rpc with proper typing
+        // Add reaction using functions invoke with proper typing
         const { error } = await supabase.functions.invoke<void>('add_reaction', {
           body: {
             content_id_param: contentId,
@@ -175,8 +175,8 @@ const ReactionButton = ({
         <Check 
           className={cn(
             "h-4 w-4 transition-all",
-            reacted && "fill-green-100",
-            loading && "animate-pulse"
+            reacted && "fill-green-100"
+            // Removed the loading animation class
           )} 
         />
       </Button>
