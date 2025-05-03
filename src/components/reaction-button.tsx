@@ -14,6 +14,22 @@ interface ReactionButtonProps {
   size?: "sm" | "md" | "lg";
 }
 
+// Define type interfaces for the RPC parameters
+interface CheckReactionParams {
+  content_id_param: string;
+  content_type_param: string;
+  user_id_param: string;
+}
+
+interface GetReactionCountParams {
+  content_id_param: string;
+  content_type_param: string;
+}
+
+interface AddReactionParams extends CheckReactionParams {
+  reaction_type_param: string;
+}
+
 const ReactionButton = ({
   contentId,
   contentType,
@@ -42,7 +58,7 @@ const ReactionButton = ({
         const userId = session.session.user.id;
         
         // Use rpc to call the check_user_reaction database function
-        const { data, error } = await supabase.rpc<boolean>('check_user_reaction', {
+        const { data, error } = await supabase.rpc<boolean, CheckReactionParams>('check_user_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId
@@ -56,7 +72,7 @@ const ReactionButton = ({
         setReacted(!!data);
         
         // Get total reactions count using rpc
-        const { data: countData, error: countError } = await supabase.rpc<number>('get_reaction_count', {
+        const { data: countData, error: countError } = await supabase.rpc<number, GetReactionCountParams>('get_reaction_count', {
           content_id_param: contentId,
           content_type_param: contentType
         });
@@ -90,7 +106,7 @@ const ReactionButton = ({
       
       if (reacted) {
         // Remove reaction using rpc
-        const { error } = await supabase.rpc<null>('delete_reaction', {
+        const { error } = await supabase.rpc<null, CheckReactionParams>('delete_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId
@@ -107,7 +123,7 @@ const ReactionButton = ({
         toast.success("Reaction removed");
       } else {
         // Add reaction using rpc
-        const { error } = await supabase.rpc<null>('add_reaction', {
+        const { error } = await supabase.rpc<null, AddReactionParams>('add_reaction', {
           content_id_param: contentId,
           content_type_param: contentType,
           user_id_param: userId,
