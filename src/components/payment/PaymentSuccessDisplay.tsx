@@ -25,7 +25,7 @@ interface PaymentSuccessDisplayProps {
 
 const PaymentSuccessDisplay = ({ paymentData }: PaymentSuccessDisplayProps) => {
   // Calculate commission and provider amounts
-  const commissionRate = 0.05; // 5% platform fee
+  const commissionRate = 0.07; // 7% platform fee
   const grossAmount = paymentData?.amount || 0;
   const payfastFee = paymentData?.payment_details?.amount_fee || 0;
   const netAfterFees = paymentData?.payment_details?.amount_net || (grossAmount - payfastFee);

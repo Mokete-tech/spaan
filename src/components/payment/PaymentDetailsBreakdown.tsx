@@ -38,7 +38,7 @@ const PaymentDetailsBreakdown = ({
         </div>
         
         <div className="flex justify-between">
-          <span>Spaan Commission (5%):</span>
+          <span>Spaan Commission (7%, excl. bank charges):</span>
           <span>- {currency} {commission.toFixed(2)}</span>
         </div>
         
