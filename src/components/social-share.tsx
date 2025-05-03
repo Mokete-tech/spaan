@@ -8,7 +8,7 @@ import {
   Copy, 
   Check,
   X,
-  Smartphone
+  MessageSquare
 } from "lucide-react";
 import { 
   Popover, 
@@ -125,7 +125,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
               className="flex flex-col items-center justify-center py-3 border-gray-200 hover:bg-green-500 hover:text-white"
               onClick={() => shareViaWindow(shareLinks.whatsapp)}
             >
-              <Smartphone className={iconSize} />
+              <MessageSquare className={iconSize} />
               <span className="text-xs mt-1">WhatsApp</span>
             </Button>
             

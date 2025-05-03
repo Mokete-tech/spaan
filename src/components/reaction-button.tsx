@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -173,7 +174,7 @@ const ReactionButton = ({
       >
         <Check 
           className={cn(
-            "h-4 w-4 transition-all",
+            "h-4 w-4",
             reacted && "fill-green-100"
           )} 
         />
