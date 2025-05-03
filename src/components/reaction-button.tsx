@@ -41,13 +41,11 @@ const ReactionButton = ({
 
         const userId = session.session.user.id;
         
-        // Use a stored function that returns boolean
-        const { data, error } = await supabase.functions.invoke('check_user_reaction', {
-          body: {
-            content_id: contentId,
-            content_type: contentType,
-            user_id: userId
-          }
+        // Use rpc to call the check_user_reaction database function
+        const { data, error } = await supabase.rpc('check_user_reaction', {
+          content_id_param: contentId,
+          content_type_param: contentType,
+          user_id_param: userId
         });
         
         if (error) {
@@ -55,16 +53,12 @@ const ReactionButton = ({
           return;
         }
         
-        if (data?.exists) {
-          setReacted(!!data.exists);
-        }
+        setReacted(!!data);
         
-        // Get total reactions count
-        const { data: countData, error: countError } = await supabase.functions.invoke('get_reaction_count', {
-          body: {
-            content_id: contentId,
-            content_type: contentType
-          }
+        // Get total reactions count using rpc
+        const { data: countData, error: countError } = await supabase.rpc('get_reaction_count', {
+          content_id_param: contentId,
+          content_type_param: contentType
         });
         
         if (countError) {
@@ -72,7 +66,7 @@ const ReactionButton = ({
           return;
         }
         
-        setCount(countData?.count || 0);
+        setCount(countData || 0);
       } catch (error) {
         console.error('Error checking reactions:', error);
       }
@@ -94,13 +88,11 @@ const ReactionButton = ({
       const userId = session.session.user.id;
       
       if (reacted) {
-        // Remove reaction
-        const { error } = await supabase.functions.invoke('delete_reaction', {
-          body: {
-            content_id: contentId,
-            content_type: contentType,
-            user_id: userId
-          }
+        // Remove reaction using rpc
+        const { error } = await supabase.rpc('delete_reaction', {
+          content_id_param: contentId,
+          content_type_param: contentType,
+          user_id_param: userId
         });
         
         if (error) {
@@ -113,14 +105,12 @@ const ReactionButton = ({
         setCount(prev => Math.max(0, prev - 1));
         toast.success("Reaction removed");
       } else {
-        // Add reaction
-        const { error } = await supabase.functions.invoke('add_reaction', {
-          body: {
-            content_id: contentId,
-            content_type: contentType,
-            user_id: userId,
-            reaction_type: 'tick'
-          }
+        // Add reaction using rpc
+        const { error } = await supabase.rpc('add_reaction', {
+          content_id_param: contentId,
+          content_type_param: contentType,
+          user_id_param: userId,
+          reaction_type_param: 'tick'
         });
         
         if (error) {
