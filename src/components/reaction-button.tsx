@@ -157,7 +157,7 @@ const ReactionButton = ({
   };
 
   return (
-    <div className="flex items-center">
+    <div className="flex items-center flex-shrink-0">
       <Button
         variant={variant}
         size="icon"

@@ -8,7 +8,6 @@ import {
   Copy, 
   Check,
   X,
-  Share,
   Smartphone
 } from "lucide-react";
 import { 
@@ -76,6 +75,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
               variant="ghost" 
               size="icon" 
               className={`rounded-full hover:bg-blue-50 hover:text-blue-600 ${className}`}
+              aria-label="Share"
             >
               <Share2 className={iconSize} />
             </Button>
@@ -89,7 +89,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
             </Button>
           )}
         </PopoverTrigger>
-        <PopoverContent className="w-72 p-3 z-50" align="end" sideOffset={5}>
+        <PopoverContent className="w-72 p-3 z-50 bg-white" align="end" sideOffset={5}>
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-medium">Share this page</h3>
             <PopoverTrigger asChild>
