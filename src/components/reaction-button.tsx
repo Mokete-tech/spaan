@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -163,7 +162,7 @@ const ReactionButton = ({
         size="icon"
         className={cn(
           buttonSize,
-          "rounded-full transition-all duration-200",
+          "rounded-full transition-all duration-200 flex-shrink-0",
           reacted 
             ? "bg-green-50 text-green-600 border-green-300" 
             : "hover:bg-green-50 hover:text-green-600",
@@ -176,7 +175,6 @@ const ReactionButton = ({
           className={cn(
             "h-4 w-4 transition-all",
             reacted && "fill-green-100"
-            // Removed the loading animation class
           )} 
         />
       </Button>

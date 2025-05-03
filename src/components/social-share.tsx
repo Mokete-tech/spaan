@@ -32,10 +32,11 @@ const SocialShare: React.FC<SocialShareProps> = ({
   title = "Check out Spaan - Find gigs or post jobs!",
   description = "Spaan connects people needing help with skilled service providers. Find or offer local and digital gigs in South Africa and beyond.",
   className = "",
-  variant = "button",
+  variant = "icon",
   size = "md"
 }) => {
   const [copied, setCopied] = useState(false);
+  const [isOpen, setIsOpen] = useState(false);
 
   const encodedUrl = encodeURIComponent(url);
   const encodedTitle = encodeURIComponent(title);
@@ -67,14 +68,14 @@ const SocialShare: React.FC<SocialShareProps> = ({
   };
 
   return (
-    <div className="relative inline-block">
-      <Popover>
+    <div className="relative inline-block flex-shrink-0">
+      <Popover open={isOpen} onOpenChange={setIsOpen}>
         <PopoverTrigger asChild>
           {variant === "icon" ? (
             <Button 
               variant="ghost" 
               size="icon" 
-              className={`rounded-full hover:bg-blue-50 hover:text-blue-600 ${className}`}
+              className={`rounded-full hover:bg-blue-50 hover:text-blue-600 flex-shrink-0 ${className}`}
               aria-label="Share"
             >
               <Share2 className={iconSize} />
@@ -82,7 +83,7 @@ const SocialShare: React.FC<SocialShareProps> = ({
           ) : (
             <Button 
               variant="outline" 
-              className={`flex items-center gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 ${className}`}
+              className={`flex items-center gap-2 border-blue-300 text-blue-600 hover:bg-blue-50 flex-shrink-0 ${className}`}
             >
               <Share2 className="h-4 w-4" />
               Share
@@ -92,11 +93,12 @@ const SocialShare: React.FC<SocialShareProps> = ({
         <PopoverContent className="w-72 p-3 z-50 bg-white" align="end" sideOffset={5}>
           <div className="flex justify-between items-center mb-3">
             <h3 className="font-medium">Share this page</h3>
-            <PopoverTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7">
-                <CloseIcon className="h-4 w-4" />
-              </Button>
-            </PopoverTrigger>
+            <button 
+              className="h-7 w-7 inline-flex items-center justify-center rounded-full hover:bg-gray-100"
+              onClick={() => setIsOpen(false)}
+            >
+              <CloseIcon className="h-4 w-4" />
+            </button>
           </div>
           
           <div className="grid grid-cols-4 gap-2 mb-3">

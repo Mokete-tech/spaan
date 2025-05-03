@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -112,23 +113,25 @@ const ServiceCard = ({
             Freelancer
           </Badge>
         )}
-        <div className="absolute top-3 right-3 flex space-x-1">
+        <div className="absolute top-3 right-3 flex flex-shrink-0 space-x-1">
           {!featured && (
             <button 
-              className="bg-white/80 p-1.5 rounded-full shadow-sm hover:bg-white transition-colors"
+              className="bg-white/80 p-1.5 rounded-full shadow-sm hover:bg-white transition-colors flex-shrink-0"
               onClick={handleFavoriteClick}
               aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
             >
               <Heart className={cn("h-5 w-5 transition-colors", favorite ? "fill-red-500 text-red-500" : "text-gray-400")} />
             </button>
           )}
-          <SocialShare 
-            url={shareUrl}
-            title={shareTitle}
-            description={shareDescription}
-            variant="icon"
-            className="bg-white/80 hover:bg-white"
-          />
+          <div className="flex-shrink-0">
+            <SocialShare 
+              url={shareUrl}
+              title={shareTitle}
+              description={shareDescription}
+              variant="icon"
+              className="bg-white/80 hover:bg-white"
+            />
+          </div>
         </div>
       </div>
 

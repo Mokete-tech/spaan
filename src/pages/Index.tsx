@@ -65,10 +65,12 @@ const Index = () => {
             <div className="md:w-1/2">
               <div className="flex justify-between items-center mb-4">
                 <h2 className="text-3xl font-bold">Need help with something?</h2>
-                <SocialShare 
-                  title="Get help with your tasks on Spaan"
-                  description="Post a gig on Spaan and let qualified people help you get it done."
-                />
+                <div className="flex-shrink-0">
+                  <SocialShare 
+                    title="Get help with your tasks on Spaan"
+                    description="Post a gig on Spaan and let qualified people help you get it done."
+                  />
+                </div>
               </div>
               <p className="text-lg text-gray-600 mb-6">
                 Post a gig on Spaan and let qualified people help you get it done. It's quick and easy!
@@ -117,11 +119,13 @@ const Index = () => {
           </p>
           
           <div className="flex flex-wrap justify-center gap-4">
-            <SocialShare 
-              className="bg-white text-blue-600 hover:bg-blue-50 border-none"
-              title="Join Spaan - Find or offer gigs in South Africa"
-              description="Spaan connects people needing help with skilled service providers. Join our community today!"
-            />
+            <div className="flex-shrink-0">
+              <SocialShare 
+                className="bg-white text-blue-600 hover:bg-blue-50 border-none"
+                title="Join Spaan - Find or offer gigs in South Africa"
+                description="Spaan connects people needing help with skilled service providers. Join our community today!"
+              />
+            </div>
             
             <Link to="/post-job">
               <Button className="bg-white text-blue-600 hover:bg-blue-50">
