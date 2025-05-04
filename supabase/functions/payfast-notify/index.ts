@@ -1,6 +1,6 @@
 
 import { serve } from "https://deno.land/std@0.177.0/http/server.ts";
-import { createHash } from "https://deno.land/std@0.177.0/hash/mod.ts"; // Fixed import
+import { createHash } from "https://deno.land/std@0.177.0/crypto/mod.ts"; // Fixed import path
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
 // CORS headers
