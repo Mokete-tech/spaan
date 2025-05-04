@@ -27,8 +27,8 @@ serve(async (req) => {
     console.log("Received ITN payload:", data);
 
     // Verify the request is from PayFast (IP verification would be done in production)
-    // Note: Skip IP verification in this demo
-
+    // In production, you should verify that the request comes from PayFast's IP addresses
+    
     // Verify signature if present
     if (data.signature) {
       const receivedSignature = data.signature;
@@ -60,6 +60,8 @@ serve(async (req) => {
         console.error("Signature validation failed");
         return new Response("Invalid Signature", { status: 400 });
       }
+      
+      console.log("Signature validation successful");
     }
 
     // Initialize Supabase client
@@ -95,6 +97,11 @@ serve(async (req) => {
     
     console.log("Processed payment data:", paymentData);
 
+    // Calculate platform commission (7%)
+    const commissionRate = 0.07;
+    const commission = paymentData.amount_net * commissionRate;
+    const providerAmount = paymentData.amount_net - commission;
+
     // First, add the transaction to the payments table
     const { error: paymentError } = await supabase
       .from("payments")
@@ -106,11 +113,17 @@ serve(async (req) => {
         payment_method: "payfast",
         payment_details: paymentData,
         currency: "ZAR",  // PayFast uses ZAR
-        created_at: paymentData.created_at
+        created_at: paymentData.created_at,
+        payfast_fee: paymentData.amount_fee,
+        net_after_payfast: paymentData.amount_net,
+        commission: commission,
+        provider_amount: providerAmount
       });
 
     if (paymentError) {
       console.error("Error saving payment:", paymentError);
+    } else {
+      console.log("Payment record saved successfully");
     }
 
     // If we have service and user IDs, update the transactions table for escrow
@@ -139,6 +152,8 @@ serve(async (req) => {
 
       if (transactionError) {
         console.error("Error creating transaction record:", transactionError);
+      } else {
+        console.log("Transaction record created successfully");
       }
     }
 

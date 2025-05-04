@@ -37,13 +37,16 @@ serve(async (req) => {
       );
     }
     
-    // PayFast credentials - Using provided credentials
-    const merchantId = "27299765";
-    const merchantKey = "gp7yww9qz0tmd";
+    // PayFast credentials - Using environment variables
+    // In production, you should use your actual merchant account details
+    const merchantId = Deno.env.get("PAYFAST_MERCHANT_ID") || "27299765";
+    const merchantKey = Deno.env.get("PAYFAST_MERCHANT_KEY") || "gp7yww9qz0tmd";
     const passphrase = Deno.env.get("PAYFAST_PASSPHRASE") || "NzimandeNkosi2021";
     
     // Determine environment (sandbox for development, live for production)
     const isProduction = Deno.env.get("ENVIRONMENT") === "production";
+    console.log("Running in", isProduction ? "production" : "sandbox", "mode");
+    
     const payfastUrl = isProduction 
       ? "https://www.payfast.co.za/eng/process"
       : "https://sandbox.payfast.co.za/eng/process";
@@ -96,6 +99,8 @@ serve(async (req) => {
     const redirectUrl = `${payfastUrl}?${Object.keys(paymentData)
       .map(key => `${key}=${encodeURIComponent(paymentData[key])}`)
       .join('&')}`;
+    
+    console.log("Generated PayFast URL for:", item_name, "Amount:", amount);
     
     // Return success with URL
     return new Response(
