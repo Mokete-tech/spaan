@@ -29,7 +29,6 @@ const Navbar = () => {
   };
 
   const menuItems = [
-    // Home button removed
     { label: "Services", href: "/services", icon: <Briefcase className="mr-2 h-4 w-4" /> },
     { label: "Explore", href: "/explore", icon: <Search className="mr-2 h-4 w-4" /> },
     { label: "Post Job", href: "/post-job", icon: <Briefcase className="mr-2 h-4 w-4" /> },
@@ -63,8 +62,8 @@ const Navbar = () => {
           to={item.href}
           className={`px-4 py-2 text-sm font-medium transition-colors ${
             location.pathname === item.href
-              ? "text-foreground font-semibold"
-              : "text-muted-foreground hover:text-foreground"
+              ? "text-gray-900 font-semibold" // Darker text for active link
+              : "text-gray-700 hover:text-gray-900" // Dark gray for inactive, black on hover
           }`}
         >
           {item.label}
@@ -77,7 +76,7 @@ const Navbar = () => {
     <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-14 items-center">
         <Link to="/" className="mr-6 flex items-center space-x-2">
-          <span className="font-bold text-xl">Spaan</span>
+          <span className="font-bold text-xl text-gray-900">Spaan</span>
         </Link>
 
         {isMobile ? (
@@ -94,7 +93,7 @@ const Navbar = () => {
                   <Link
                     key={item.label}
                     to={item.href}
-                    className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    className="flex items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                   >
                     {item.icon}
                     {item.label}
@@ -105,28 +104,28 @@ const Navbar = () => {
                   <>
                     <Link
                       to="/profile"
-                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                      className="flex items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                     >
                       <User className="mr-2 h-4 w-4" />
                       Profile
                     </Link>
                     <Link
                       to="/cart"
-                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                      className="flex items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                     >
                       <ShoppingCart className="mr-2 h-4 w-4" />
                       Cart
                     </Link>
                     <Link
                       to="/admin-dashboard"
-                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                      className="flex items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                     >
                       <CreditCard className="mr-2 h-4 w-4" />
                       Admin
                     </Link>
                     <button
                       onClick={signOut}
-                      className="flex w-full items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                      className="flex w-full items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                     >
                       <LogOut className="mr-2 h-4 w-4" />
                       Logout
@@ -135,7 +134,7 @@ const Navbar = () => {
                 ) : (
                   <Link
                     to="/auth"
-                    className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    className="flex items-center px-2 py-1 text-gray-700 hover:text-gray-900"
                   >
                     <LogIn className="mr-2 h-4 w-4" />
                     Login
@@ -165,10 +164,10 @@ const Navbar = () => {
                   <DropdownMenuContent className="w-56" align="end" forceMount>
                     <DropdownMenuLabel className="font-normal">
                       <div className="flex flex-col space-y-1">
-                        <p className="text-sm font-medium leading-none">
+                        <p className="text-sm font-medium leading-none text-gray-900">
                           {user.user_metadata?.name || "User"}
                         </p>
-                        <p className="text-xs leading-none text-muted-foreground">
+                        <p className="text-xs leading-none text-gray-600">
                           {user.email || ""}
                         </p>
                       </div>
@@ -204,7 +203,7 @@ const Navbar = () => {
                 </DropdownMenu>
               ) : (
                 <Button asChild>
-                  <Link to="/auth">
+                  <Link to="/auth" className="flex items-center">
                     <LogIn className="mr-2 h-4 w-4" />
                     Login
                   </Link>
