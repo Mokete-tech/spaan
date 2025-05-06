@@ -42,14 +42,16 @@ const PaymentDashboard: React.FC = () => {
         .from("payments")
         .select(`
           *,
-          service:service_id(title),
+          service:service_id(title, description),
           buyer:buyer_id(email, first_name, last_name),
           provider:provider_id(email, business_name)
         `)
         .order(sortField, { ascending: sortDirection === "asc" });
       
       if (error) throw error;
-      setPayments(data as PaymentData[]);
+      
+      // Type assertion to handle the database response mapping
+      setPayments(data as unknown as PaymentData[]);
     } catch (err: any) {
       console.error("Error fetching payments:", err);
       toast({

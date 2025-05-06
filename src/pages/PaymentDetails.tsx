@@ -51,7 +51,8 @@ const PaymentDetails: React.FC = () => {
       if (error) throw error;
       if (!data) throw new Error("Payment not found");
       
-      setPayment(data as PaymentData);
+      // Type assertion to handle the database response mapping
+      setPayment(data as unknown as PaymentData);
     } catch (err: any) {
       console.error("Error fetching payment details:", err);
       setError(err.message);
@@ -189,8 +190,8 @@ const PaymentDetails: React.FC = () => {
   
   // Calculate payment values if not already provided
   const grossAmount = payment.amount || 0;
-  const payfastFee = payment.payfast_fee || payment.payment_details?.amount_fee || 0;
-  const netAfterFees = payment.net_after_payfast || payment.payment_details?.amount_net || (grossAmount - payfastFee);
+  const payfastFee = payment.payfast_fee || (payment.payment_details?.amount_fee || 0);
+  const netAfterFees = payment.net_after_payfast || (payment.payment_details?.amount_net || (grossAmount - payfastFee));
   const commissionRate = 0.07; // 7% platform fee
   const commission = payment.commission || (netAfterFees * commissionRate);
   const providerAmount = payment.provider_amount || (netAfterFees - commission);

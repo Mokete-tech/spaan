@@ -20,15 +20,15 @@ export interface PaymentData {
   escrow_fee?: number;
   service?: {
     title: string;
-    description: string;
+    description?: string;
   };
   buyer?: {
-    email: string;
+    email?: string;
     first_name?: string;
     last_name?: string;
   } | null;
   provider?: {
-    email: string;
+    email?: string;
     business_name?: string;
   } | null;
 }
