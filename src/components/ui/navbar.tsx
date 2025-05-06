@@ -12,7 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "./dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
-import { Menu, User, LogOut, LogIn, Home, Briefcase, Search, ShoppingCart, CreditCard, UserCog } from "lucide-react";
+import { Menu, User, LogOut, LogIn, Briefcase, Search, ShoppingCart, CreditCard, UserCog } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
@@ -29,7 +29,7 @@ const Navbar = () => {
   };
 
   const menuItems = [
-    { label: "Home", href: "/", icon: <Home className="mr-2 h-4 w-4" /> },
+    // Home button removed
     { label: "Services", href: "/services", icon: <Briefcase className="mr-2 h-4 w-4" /> },
     { label: "Explore", href: "/explore", icon: <Search className="mr-2 h-4 w-4" /> },
     { label: "Post Job", href: "/post-job", icon: <Briefcase className="mr-2 h-4 w-4" /> },
