@@ -1,154 +1,220 @@
 
-import React, { useState, useEffect } from "react";
 import { Link, useLocation } from "react-router-dom";
-import { NavigationMenu, NavigationMenuItem, NavigationMenuList } from "@/components/ui/navigation-menu";
-import { Button } from "@/components/ui/button";
-import { useAuth } from "@/context";
-import { Menu, ShoppingCart, X, User } from "lucide-react";
+import { useAuth } from "@/context/AuthContext";
+import { Button } from "./button";
+import { Avatar, AvatarFallback, AvatarImage } from "./avatar";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "./dropdown-menu";
+import { Sheet, SheetContent, SheetTrigger } from "./sheet";
+import { Menu, User, LogOut, LogIn, Home, Briefcase, Search, ShoppingCart, CreditCard, UserCog } from "lucide-react";
+import { useMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
+  const isMobile = useMobile();
   const location = useLocation();
-  
-  // Handle scrolling effect for navbar
-  useEffect(() => {
-    const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setScrolled(true);
-      } else {
-        setScrolled(false);
-      }
-    };
-    
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-  
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen);
+
+  const getInitials = (name: string) => {
+    return name
+      .split(" ")
+      .map((n) => n[0])
+      .join("")
+      .toUpperCase();
   };
-  
-  // Don't show sign-in button on the auth page
-  const isAuthPage = location.pathname === "/auth";
-  
+
+  const menuItems = [
+    { label: "Home", href: "/", icon: <Home className="mr-2 h-4 w-4" /> },
+    { label: "Services", href: "/services", icon: <Briefcase className="mr-2 h-4 w-4" /> },
+    { label: "Explore", href: "/explore", icon: <Search className="mr-2 h-4 w-4" /> },
+    { label: "Post Job", href: "/post-job", icon: <Briefcase className="mr-2 h-4 w-4" /> },
+    { label: "Providers", href: "/providers", icon: <UserCog className="mr-2 h-4 w-4" /> },
+  ];
+
+  const authMenuItems = user
+    ? [
+        { label: "Profile", href: "/profile", icon: <User className="mr-2 h-4 w-4" /> },
+        { label: "Cart", href: "/cart", icon: <ShoppingCart className="mr-2 h-4 w-4" /> },
+        { label: "Admin", href: "/admin-dashboard", icon: <CreditCard className="mr-2 h-4 w-4" /> },
+        {
+          label: "Logout",
+          onClick: signOut,
+          icon: <LogOut className="mr-2 h-4 w-4" />,
+        },
+      ]
+    : [
+        {
+          label: "Login",
+          href: "/auth",
+          icon: <LogIn className="mr-2 h-4 w-4" />,
+        },
+      ];
+
+  const NavLinks = () => (
+    <>
+      {menuItems.map((item) => (
+        <Link
+          key={item.label}
+          to={item.href}
+          className={`px-4 py-2 text-sm font-medium transition-colors ${
+            location.pathname === item.href
+              ? "text-foreground font-semibold"
+              : "text-muted-foreground hover:text-foreground"
+          }`}
+        >
+          {item.label}
+        </Link>
+      ))}
+    </>
+  );
+
   return (
-    <div className={`border-b sticky top-0 z-50 transition-all duration-200 ${scrolled ? "bg-white/95 backdrop-blur-sm shadow-sm" : "bg-white"}`}>
-      <div className="container py-4">
-        <div className="flex justify-between items-center">
-          <Link to="/" className="font-bold text-2xl text-spaan-primary">
-            Spaan
-          </Link>
+    <header className="fixed top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container flex h-14 items-center">
+        <Link to="/" className="mr-6 flex items-center space-x-2">
+          <span className="font-bold text-xl">Spaan</span>
+        </Link>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden">
-            <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Toggle menu">
-              {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
-          </div>
-
-          {/* Desktop Navigation */}
-          <NavigationMenu className="hidden md:block">
-            <NavigationMenuList className="flex items-center space-x-6">
-              <NavigationMenuItem>
-                <Link to="/gigs" className="text-gray-700 hover:text-spaan-primary transition-colors px-2 py-1">
-                  Find Gigs
-                </Link>
-              </NavigationMenuItem>
-              
-              <NavigationMenuItem>
-                <Link to="/post-job" className="text-gray-700 hover:text-spaan-primary transition-colors px-2 py-1">
-                  Post a Job
-                </Link>
-              </NavigationMenuItem>
-
-              {user ? (
-                <>
-                  <NavigationMenuItem>
-                    <Link to="/cart" className="text-gray-700 hover:text-spaan-primary transition-colors p-2 rounded-full hover:bg-gray-100">
-                      <ShoppingCart className="h-5 w-5" />
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Link to="/profile" className="flex items-center text-gray-700 hover:text-spaan-primary transition-colors px-3 py-1 rounded-full hover:bg-gray-100">
-                      <User className="h-4 w-4 mr-2" />
-                      <span>Profile</span>
-                    </Link>
-                  </NavigationMenuItem>
-                  <NavigationMenuItem>
-                    <Button variant="outline" size="sm" onClick={signOut} className="border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10 hover:text-spaan-primary">
-                      Sign Out
-                    </Button>
-                  </NavigationMenuItem>
-                </>
-              ) : !isAuthPage && (
-                <NavigationMenuItem>
-                  <Link to="/auth">
-                    <Button variant="default" size="sm" className="bg-spaan-primary hover:bg-spaan-primary/90 text-white">
-                      Sign In
-                    </Button>
-                  </Link>
-                </NavigationMenuItem>
-              )}
-            </NavigationMenuList>
-          </NavigationMenu>
-          
-          {/* Mobile Navigation */}
-          <div className={`md:hidden fixed inset-0 bg-white z-50 transform transition-transform duration-300 ease-in-out ${isMobileMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            <div className="flex justify-between items-center p-4 border-b">
-              <Link to="/" className="font-bold text-2xl text-spaan-primary" onClick={() => setIsMobileMenuOpen(false)}>
-                Spaan
-              </Link>
-              <Button variant="ghost" size="icon" onClick={toggleMobileMenu} aria-label="Close menu">
-                <X className="h-6 w-6" />
+        {isMobile ? (
+          <Sheet>
+            <SheetTrigger asChild>
+              <Button variant="outline" size="icon" className="ml-auto">
+                <Menu className="h-[1.2rem] w-[1.2rem]" />
+                <span className="sr-only">Toggle Menu</span>
               </Button>
-            </div>
-            <div className="p-4">
-              <nav className="flex flex-col space-y-4">
-                <Link to="/" className="text-gray-700 hover:text-spaan-primary transition-colors py-2 border-b border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-                  Home
-                </Link>
-                <Link to="/gigs" className="text-gray-700 hover:text-spaan-primary transition-colors py-2 border-b border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-                  Find Gigs
-                </Link>
-                <Link to="/post-job" className="text-gray-700 hover:text-spaan-primary transition-colors py-2 border-b border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-                  Post a Job
-                </Link>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[240px] sm:w-[300px]">
+              <nav className="flex flex-col gap-4 mt-8">
+                {menuItems.map((item) => (
+                  <Link
+                    key={item.label}
+                    to={item.href}
+                    className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                  >
+                    {item.icon}
+                    {item.label}
+                  </Link>
+                ))}
+                <div className="h-px bg-border my-4" />
                 {user ? (
                   <>
-                    <Link to="/cart" className="text-gray-700 hover:text-spaan-primary transition-colors py-2 border-b border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="flex items-center">
-                        <ShoppingCart className="h-5 w-5 mr-2" />
-                        <span>Cart</span>
-                      </div>
+                    <Link
+                      to="/profile"
+                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    >
+                      <User className="mr-2 h-4 w-4" />
+                      Profile
                     </Link>
-                    <Link to="/profile" className="text-gray-700 hover:text-spaan-primary transition-colors py-2 border-b border-gray-100" onClick={() => setIsMobileMenuOpen(false)}>
-                      <div className="flex items-center">
-                        <User className="h-5 w-5 mr-2" />
-                        <span>Profile</span>
-                      </div>
+                    <Link
+                      to="/cart"
+                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    >
+                      <ShoppingCart className="mr-2 h-4 w-4" />
+                      Cart
                     </Link>
-                    <Button variant="outline" className="mt-4 border-spaan-primary text-spaan-primary hover:bg-spaan-primary/10" onClick={() => {
-                      signOut();
-                      setIsMobileMenuOpen(false);
-                    }}>
-                      Sign Out
-                    </Button>
+                    <Link
+                      to="/admin-dashboard"
+                      className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    >
+                      <CreditCard className="mr-2 h-4 w-4" />
+                      Admin
+                    </Link>
+                    <button
+                      onClick={signOut}
+                      className="flex w-full items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </button>
                   </>
-                ) : !isAuthPage && (
-                  <Link to="/auth" onClick={() => setIsMobileMenuOpen(false)} className="w-full mt-4">
-                    <Button variant="default" size="sm" className="w-full bg-spaan-primary hover:bg-spaan-primary/90 text-white">
-                      Sign In
-                    </Button>
+                ) : (
+                  <Link
+                    to="/auth"
+                    className="flex items-center px-2 py-1 text-muted-foreground hover:text-foreground"
+                  >
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
                   </Link>
                 )}
               </nav>
+            </SheetContent>
+          </Sheet>
+        ) : (
+          <>
+            <nav className="mr-4 hidden md:flex items-center gap-2 md:gap-1">
+              <NavLinks />
+            </nav>
+            <div className="ml-auto flex items-center gap-2">
+              {user ? (
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                      <Avatar className="h-8 w-8">
+                        <AvatarImage src={user.user_metadata?.avatar_url} alt={user.email || ""} />
+                        <AvatarFallback>
+                          {getInitials(user.user_metadata?.name || user.email || "User")}
+                        </AvatarFallback>
+                      </Avatar>
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent className="w-56" align="end" forceMount>
+                    <DropdownMenuLabel className="font-normal">
+                      <div className="flex flex-col space-y-1">
+                        <p className="text-sm font-medium leading-none">
+                          {user.user_metadata?.name || "User"}
+                        </p>
+                        <p className="text-xs leading-none text-muted-foreground">
+                          {user.email || ""}
+                        </p>
+                      </div>
+                    </DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem asChild>
+                      <Link to="/profile" className="cursor-pointer">
+                        <User className="mr-2 h-4 w-4" />
+                        Profile
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/cart" className="cursor-pointer">
+                        <ShoppingCart className="mr-2 h-4 w-4" />
+                        Cart
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin-dashboard" className="cursor-pointer">
+                        <CreditCard className="mr-2 h-4 w-4" />
+                        Admin Dashboard
+                      </Link>
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem
+                      onClick={signOut}
+                      className="cursor-pointer"
+                    >
+                      <LogOut className="mr-2 h-4 w-4" />
+                      Logout
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              ) : (
+                <Button asChild>
+                  <Link to="/auth">
+                    <LogIn className="mr-2 h-4 w-4" />
+                    Login
+                  </Link>
+                </Button>
+              )}
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
-    </div>
+    </header>
   );
 };
 

@@ -22,6 +22,8 @@ import Cart from "@/pages/Cart";
 import PaymentSuccess from "@/pages/PaymentSuccess";
 import PaymentCancel from "@/pages/PaymentCancel";
 import ProfileWizard from "@/pages/ProfileWizard";
+import AdminDashboard from "@/pages/AdminDashboard";
+import PaymentDetails from "@/pages/PaymentDetails";
 
 import "@/App.css";
 
@@ -65,6 +67,8 @@ function App() {
           <Route path="/cart" element={<Cart />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
           <Route path="/payment-cancel" element={<PaymentCancel />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
+          <Route path="/payment-details/:id" element={<PaymentDetails />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
         <Toaster />
