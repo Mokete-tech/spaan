@@ -7,16 +7,16 @@ import { useAuth } from "@/context/AuthContext";
 import { Navigate } from "react-router-dom";
 
 const AdminDashboard: React.FC = () => {
-  const { user, isAdmin } = useAuth();
+  const { user } = useAuth();
   
-  // Redirect if not logged in or not admin
+  // Redirect if not logged in
   if (!user) {
     return <Navigate to="/auth?redirect=/admin-dashboard" />;
   }
   
   // For demo purposes, let anyone with a login access the admin dashboard
-  // In production, uncomment this to restrict access to admins only
-  // if (!isAdmin) {
+  // In production, you would want to check for admin rights:
+  // if (!user.user_metadata?.is_admin) {
   //   return <Navigate to="/" />;
   // }
   

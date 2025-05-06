@@ -13,11 +13,11 @@ import {
 } from "./dropdown-menu";
 import { Sheet, SheetContent, SheetTrigger } from "./sheet";
 import { Menu, User, LogOut, LogIn, Home, Briefcase, Search, ShoppingCart, CreditCard, UserCog } from "lucide-react";
-import { useMobile } from "@/hooks/use-mobile";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 const Navbar = () => {
   const { user, signOut } = useAuth();
-  const isMobile = useMobile();
+  const isMobile = useIsMobile();
   const location = useLocation();
 
   const getInitials = (name: string) => {
