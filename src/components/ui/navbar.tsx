@@ -151,7 +151,7 @@ const Navbar = () => {
               <NavigationMenuList>
                 {menuItems.map((item) => (
                   <NavigationMenuItem key={item.label}>
-                    <Link to={item.href} legacyBehavior passHref>
+                    <Link to={item.href}>
                       <NavigationMenuLink
                         className={cn(
                           navigationMenuTriggerStyle(),
