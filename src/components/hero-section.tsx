@@ -1,15 +1,17 @@
-
 import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Search, Shield, MapPin, Globe, HeartHandshake } from "lucide-react";
 import CategoryDropdown from "./category-dropdown";
 import { getUserLocation, UserLocation } from "@/services/location-service";
+import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate();
+  const [selectedCategory, setSelectedCategory] = useState("");
 
   useEffect(() => {
     const detectLocation = async () => {
@@ -28,8 +30,11 @@ const HeroSection = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Searching for:", searchQuery, "in location:", userLocation?.country);
-    // Implement search functionality here
+    // Redirect to Explore page with search params
+    const params = new URLSearchParams();
+    if (searchQuery) params.append("q", searchQuery);
+    if (selectedCategory) params.append("category", selectedCategory);
+    navigate(`/explore?${params.toString()}`);
   };
 
   return (
@@ -75,7 +80,7 @@ const HeroSection = () => {
                 />
               </div>
               
-              <CategoryDropdown />
+              <CategoryDropdown onCategorySelect={setSelectedCategory} />
               
               <Button 
                 type="submit" 

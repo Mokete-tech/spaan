@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "@/components/ui/navbar";
@@ -11,6 +10,9 @@ import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
 import { Loader2, Upload, ShieldCheck, Check } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
+
+const MAX_FILE_SIZE_MB = 10;
+const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
 
 const ProviderApplication = () => {
   const { user } = useAuth();
@@ -26,6 +28,26 @@ const ProviderApplication = () => {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       const filesArray = Array.from(e.target.files);
+      // Validate each file
+      for (const file of filesArray) {
+        if (!(file instanceof File)) continue;
+        if (!ALLOWED_TYPES.includes(file.type)) {
+          toast({
+            title: "Invalid file type",
+            description: "Only PDF, JPG, and PNG files are allowed.",
+            variant: "destructive"
+          });
+          return;
+        }
+        if (file.size > MAX_FILE_SIZE_MB * 1024 * 1024) {
+          toast({
+            title: "File too large",
+            description: `Each file must be under ${MAX_FILE_SIZE_MB}MB`,
+            variant: "destructive"
+          });
+          return;
+        }
+      }
       setDocuments([...documents, ...filesArray]);
     }
   };

@@ -1,4 +1,3 @@
-
 import { supabase } from "@/integrations/supabase/client";
 import { withRetry, captureError } from "./errorHandling";
 import { toast } from "@/hooks/use-toast";
@@ -16,17 +15,19 @@ export const processPayment = async (
 ) => {
   return withRetry(
     async () => {
+      let action = "process_subscription";
+      if (paymentDetails.paymentMethod === "payfast") action = "payfast";
+      else if (paymentDetails.paymentMethod === "stripe") action = "stripe";
+      else if (paymentDetails.paymentMethod === "paypal") action = "paypal";
       // Call to our payment processing edge function
       const { data, error } = await supabase.functions.invoke("process-payment", {
         body: {
-          action: "process_subscription",
+          action,
           ...paymentDetails
         },
       });
-      
       if (error) throw error;
       if (!data.success) throw new Error(data.message || "Payment processing failed");
-      
       return data;
     },
     3, // Maximum 3 retries
