@@ -26,7 +26,7 @@ export const verifyEmail = async (token: string) => {
 export const resetPassword = async (email: string) => {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/auth`,
+      redirectTo: `${window.location.origin}/auth/callback`,
     });
 
     if (error) throw error;

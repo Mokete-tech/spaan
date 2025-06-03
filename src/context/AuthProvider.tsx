@@ -20,51 +20,71 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Function to check if profile is complete
   const isProfileComplete = !!profile?.first_name && !!profile?.last_name;
 
-  // Handle auth state changes
+  // Handle auth state changes with proper session management
   useEffect(() => {
     let mounted = true;
 
     const setupAuth = async () => {
       try {
-        // Set up auth state listener first
+        // Configure auth client with proper settings
+        await supabase.auth.setSession(null);
+        
+        // Set up auth state listener FIRST
         const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log('Auth state changed:', event, newSession?.user?.email);
           
           if (!mounted) return;
 
+          // Always update session and user state immediately
           setSession(newSession);
           setUser(newSession?.user ?? null);
           
           // Handle profile fetching after state update
           if (newSession?.user && event !== 'SIGNED_OUT') {
+            // Use setTimeout to prevent auth callback deadlock
             setTimeout(async () => {
               if (mounted) {
-                const userProfile = await fetchUserProfile(newSession.user.id);
-                setProfile(userProfile);
+                try {
+                  const userProfile = await fetchUserProfile(newSession.user.id);
+                  setProfile(userProfile);
+                } catch (error) {
+                  console.error('Error fetching profile in auth callback:', error);
+                  setProfile(null);
+                }
               }
             }, 0);
           } else {
             setProfile(null);
           }
           
-          setIsLoading(false);
+          // Only set loading to false after handling the auth change
+          if (mounted) {
+            setIsLoading(false);
+          }
         });
 
-        // Get initial session
+        // THEN get initial session
         const { data: sessionData, error } = await supabase.auth.getSession();
         
         if (error) {
-          console.error('Error getting session:', error);
+          console.error('Error getting initial session:', error);
           captureError(error, { context: 'AuthProvider.getSession' });
         }
         
+        // If we have a session but auth listener hasn't fired yet, update state
         if (mounted && sessionData?.session) {
+          console.log('Initial session found:', sessionData.session.user.email);
           setSession(sessionData.session);
           setUser(sessionData.session.user);
           
           // Fetch profile for initial session
-          const userProfile = await fetchUserProfile(sessionData.session.user.id);
-          setProfile(userProfile);
+          try {
+            const userProfile = await fetchUserProfile(sessionData.session.user.id);
+            setProfile(userProfile);
+          } catch (error) {
+            console.error('Error fetching initial profile:', error);
+            setProfile(null);
+          }
         }
         
         if (mounted) {
@@ -72,7 +92,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         }
 
         return () => {
-          authListener.subscription.unsubscribe();
+          if (authListener?.subscription) {
+            authListener.subscription.unsubscribe();
+          }
         };
       } catch (error) {
         console.error('Auth setup error:', error);
@@ -83,11 +105,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    const cleanup = setupAuth();
+    setupAuth().then(cleanup => {
+      // Store cleanup function
+      return cleanup;
+    });
     
     return () => {
       mounted = false;
-      cleanup.then(cleanupFn => cleanupFn && cleanupFn());
     };
   }, []);
   
@@ -146,7 +170,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
       
-      // Clear user state
+      // Clear user state immediately
       setUser(null);
       setSession(null);
       setProfile(null);
