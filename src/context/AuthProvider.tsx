@@ -3,7 +3,6 @@ import React, { useState, useEffect, createContext } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Session, User } from "@supabase/supabase-js";
 import { useToast } from "@/hooks/use-toast";
-import { refreshSession } from "@/utils/paymentProcessing";
 import { captureError } from "@/utils/errorHandling";
 import { AuthContextType, Profile } from "@/types/auth.types";
 import { fetchUserProfile, updateRole } from "@/utils/authUtils";
@@ -23,59 +22,72 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   // Handle auth state changes
   useEffect(() => {
-    const fetchInitialSession = async () => {
+    let mounted = true;
+
+    const setupAuth = async () => {
       try {
-        // Get the current session
-        const { data, error } = await supabase.auth.getSession();
+        // Set up auth state listener first
+        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+          console.log('Auth state changed:', event, newSession?.user?.email);
+          
+          if (!mounted) return;
+
+          setSession(newSession);
+          setUser(newSession?.user ?? null);
+          
+          // Handle profile fetching after state update
+          if (newSession?.user && event !== 'SIGNED_OUT') {
+            setTimeout(async () => {
+              if (mounted) {
+                const userProfile = await fetchUserProfile(newSession.user.id);
+                setProfile(userProfile);
+              }
+            }, 0);
+          } else {
+            setProfile(null);
+          }
+          
+          setIsLoading(false);
+        });
+
+        // Get initial session
+        const { data: sessionData, error } = await supabase.auth.getSession();
         
         if (error) {
-          throw error;
+          console.error('Error getting session:', error);
+          captureError(error, { context: 'AuthProvider.getSession' });
         }
         
-        if (data?.session) {
-          setSession(data.session);
-          setUser(data.session.user);
+        if (mounted && sessionData?.session) {
+          setSession(sessionData.session);
+          setUser(sessionData.session.user);
           
-          // Fetch user profile if we have a user
-          if (data.session.user) {
-            const userProfile = await fetchUserProfile(data.session.user.id);
-            setProfile(userProfile);
-          }
+          // Fetch profile for initial session
+          const userProfile = await fetchUserProfile(sessionData.session.user.id);
+          setProfile(userProfile);
         }
+        
+        if (mounted) {
+          setIsLoading(false);
+        }
+
+        return () => {
+          authListener.subscription.unsubscribe();
+        };
       } catch (error) {
-        captureError(error, { context: 'AuthProvider.fetchInitialSession' });
-        console.error('Error fetching initial session:', error);
-      } finally {
-        setIsLoading(false);
+        console.error('Auth setup error:', error);
+        captureError(error, { context: 'AuthProvider.setupAuth' });
+        if (mounted) {
+          setIsLoading(false);
+        }
       }
     };
-    
-    // Initial load
-    fetchInitialSession();
-    
-    // Subscribe to auth changes
-    const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-      setSession(newSession);
-      setUser(newSession?.user ?? null);
-      
-      // Fetch user profile on auth state change
-      if (newSession?.user) {
-        const userProfile = await fetchUserProfile(newSession.user.id);
-        setProfile(userProfile);
-      } else {
-        setProfile(null);
-      }
-      
-      setIsLoading(false);
-      
-      // Handle specific auth events
-      if (event === 'SIGNED_OUT') {
-        setProfile(null);
-      }
-    });
+
+    const cleanup = setupAuth();
     
     return () => {
-      authListener.subscription.unsubscribe();
+      mounted = false;
+      cleanup.then(cleanupFn => cleanupFn && cleanupFn());
     };
   }, []);
   

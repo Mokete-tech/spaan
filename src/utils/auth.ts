@@ -26,7 +26,7 @@ export const verifyEmail = async (token: string) => {
 export const resetPassword = async (email: string) => {
   try {
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/reset-password`,
+      redirectTo: `${window.location.origin}/auth`,
     });
 
     if (error) throw error;
@@ -58,39 +58,44 @@ export const updatePassword = async (password: string) => {
  * Create a callback handler for OAuth and magic link redirects
  */
 export const handleAuthCallback = async () => {
-  const { data, error } = await supabase.auth.getSession();
-  
-  if (error) {
+  try {
+    const { data, error } = await supabase.auth.getSession();
+    
+    if (error) {
+      captureError(error, { context: 'handleAuthCallback' });
+      return { success: false, error };
+    }
+    
+    // Check if user needs to complete profile
+    if (data.session) {
+      try {
+        // Check if profile exists and is complete
+        const { data: profileData, error: profileError } = await supabase
+          .from('profiles')
+          .select('*')
+          .eq('id', data.session.user.id)
+          .maybeSingle();
+        
+        if (profileError && profileError.code !== 'PGRST116') {
+          console.warn("Error checking profile:", profileError);
+          return { success: true, redirectTo: '/profile-wizard' };
+        }
+        
+        // If profile is not complete (first name and last name are required)
+        if (!profileData || !profileData.first_name || !profileData.last_name) {
+          return { success: true, redirectTo: '/profile-wizard' };
+        }
+        
+        return { success: true, redirectTo: '/' };
+      } catch (err) {
+        console.error("Error in profile check:", err);
+        return { success: true, redirectTo: '/profile-wizard' };
+      }
+    }
+    
+    return { success: false, redirectTo: '/auth' };
+  } catch (error) {
     captureError(error, { context: 'handleAuthCallback' });
     return { success: false, error };
   }
-  
-  // Check if user needs to complete profile
-  if (data.session) {
-    try {
-      // Check if profile exists and is complete
-      const { data: profileData, error: profileError } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', data.session.user.id)
-        .single();
-      
-      if (profileError) {
-        console.warn("Error checking profile:", profileError);
-        return { success: true, redirectTo: '/profile-wizard' };
-      }
-      
-      // If profile is not complete (first name and last name are required)
-      if (!profileData || !profileData.first_name || !profileData.last_name) {
-        return { success: true, redirectTo: '/profile-wizard' };
-      }
-      
-      return { success: true, redirectTo: '/' };
-    } catch (err) {
-      console.error("Error in profile check:", err);
-      return { success: true, redirectTo: '/profile-wizard' };
-    }
-  }
-  
-  return { success: false, redirectTo: '/auth' };
 };
