@@ -4,66 +4,64 @@ import { Stripe } from "https://esm.sh/stripe@11.18.0"
 // Initialize Stripe
 const stripeSecretKey = Deno.env.get("STRIPE_SECRET_KEY") ?? ""
 const stripe = new Stripe(stripeSecretKey, {
-  apiVersion: '2023-10-16', // Use latest API version
+  apiVersion: '2023-10-16',
   httpClient: Stripe.createFetchHttpClient(),
 })
 
 // Process Stripe payment
 export const processStripePayment = async (amount: number, currency: string) => {
   try {
-    // Create a payment intent
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe uses cents/smallest currency unit
+      amount: Math.round(amount * 100), // Convert to cents
       currency: currency.toLowerCase(),
-      payment_method_types: ['card'],
-      metadata: {
-        integration: 'spaan-services',
+      automatic_payment_methods: {
+        enabled: true,
       },
     })
     
     return {
       success: true,
-      transaction_id: paymentIntent.id,
-      amount,
-      currency,
-      payment_method: "stripe",
+      transaction_id: `stripe_${paymentIntent.id}`,
       client_secret: paymentIntent.client_secret,
       stripe_data: {
         payment_intent_id: paymentIntent.id,
-        status: paymentIntent.status,
-      }
+        amount,
+        currency,
+      },
+      amount,
+      currency,
+      payment_method: "stripe",
     }
   } catch (error) {
     console.error("Stripe payment error:", error)
     return {
       success: false,
-      error_message: error.message || "Stripe payment processing failed"
+      error: error.message || "Failed to process Stripe payment",
     }
   }
 }
 
-// Create Stripe payment intent
+// Create a payment intent for frontend integration
 export const createPaymentIntent = async (amount: number, currency: string) => {
   try {
     const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(amount * 100), // Stripe uses cents
+      amount: Math.round(amount * 100),
       currency: currency.toLowerCase(),
-      payment_method_types: ['card'],
-      metadata: {
-        integration: 'spaan-services',
+      automatic_payment_methods: {
+        enabled: true,
       },
-    });
-
+    })
+    
     return {
       success: true,
-      clientSecret: paymentIntent.client_secret,
-      paymentIntentId: paymentIntent.id,
-    };
+      client_secret: paymentIntent.client_secret,
+      payment_intent_id: paymentIntent.id,
+    }
   } catch (error) {
-    console.error("Error creating payment intent:", error);
+    console.error("Payment intent creation error:", error)
     return {
       success: false,
-      message: error.message || "Failed to create payment intent",
-    };
+      error: error.message || "Failed to create payment intent",
+    }
   }
 }

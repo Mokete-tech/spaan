@@ -75,8 +75,12 @@ export type Database = {
           platform_fee: number
           provider_amount: number | null
           provider_id: string
+          refund_reason: string | null
+          refunded_at: string | null
           service_id: string | null
           status: string
+          stripe_customer_id: string | null
+          stripe_payment_intent_id: string | null
           updated_at: string
         }
         Insert: {
@@ -99,8 +103,12 @@ export type Database = {
           platform_fee: number
           provider_amount?: number | null
           provider_id: string
+          refund_reason?: string | null
+          refunded_at?: string | null
           service_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string
         }
         Update: {
@@ -123,8 +131,12 @@ export type Database = {
           platform_fee?: number
           provider_amount?: number | null
           provider_id?: string
+          refund_reason?: string | null
+          refunded_at?: string | null
           service_id?: string | null
           status?: string
+          stripe_customer_id?: string | null
+          stripe_payment_intent_id?: string | null
           updated_at?: string
         }
         Relationships: [
@@ -306,6 +318,42 @@ export type Database = {
           },
         ]
       }
+      subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          stripe_customer_id: string | null
+          subscribed: boolean
+          subscription_end: string | null
+          subscription_tier: string | null
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          stripe_customer_id?: string | null
+          subscribed?: boolean
+          subscription_end?: string | null
+          subscription_tier?: string | null
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       transactions: {
         Row: {
           amount: number
@@ -444,6 +492,10 @@ export type Database = {
       }
     }
     Functions: {
+      calculate_commission: {
+        Args: { amount: number }
+        Returns: number
+      }
       has_role: {
         Args: {
           user_id: string
