@@ -6,7 +6,7 @@ import type { Database } from './types';
 const SUPABASE_URL = "https://jkajgkphojeelebucdzp.supabase.co";
 const SUPABASE_PUBLISHABLE_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImprYWpna3Bob2plZWxlYnVjZHpwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDEwMzI0MTUsImV4cCI6MjA1NjYwODQxNX0.g5P16s0rry4doYRAB-ZLhwp59po9XZs_UxpzZJ9Tv94";
 
-// Configure Supabase client with proper auth settings
+// Configure Supabase client with improved auth settings
 export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
   auth: {
     storage: typeof window !== 'undefined' ? window.localStorage : undefined,
@@ -14,5 +14,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     detectSessionInUrl: true,
     flowType: 'pkce'
+  },
+  global: {
+    headers: {
+      'X-Client-Info': 'spaan-app'
+    }
   }
 });

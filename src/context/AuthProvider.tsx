@@ -20,82 +20,81 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   // Function to check if profile is complete
   const isProfileComplete = !!profile?.first_name && !!profile?.last_name;
 
-  // Handle auth state changes with proper session management
+  // Handle auth state changes with improved error handling
   useEffect(() => {
     let mounted = true;
+    let authSubscription: { unsubscribe: () => void } | null = null;
 
     const setupAuth = async () => {
       try {
-        // Configure auth client with proper settings
-        await supabase.auth.setSession(null);
+        // Clear any existing session state first
+        if (mounted) {
+          setSession(null);
+          setUser(null);
+          setProfile(null);
+        }
         
-        // Set up auth state listener FIRST
-        const { data: authListener } = supabase.auth.onAuthStateChange(async (event, newSession) => {
+        // Set up auth state listener
+        const { data } = supabase.auth.onAuthStateChange(async (event, newSession) => {
           console.log('Auth state changed:', event, newSession?.user?.email);
           
           if (!mounted) return;
 
-          // Always update session and user state immediately
-          setSession(newSession);
-          setUser(newSession?.user ?? null);
-          
-          // Handle profile fetching after state update
-          if (newSession?.user && event !== 'SIGNED_OUT') {
-            // Use setTimeout to prevent auth callback deadlock
-            setTimeout(async () => {
-              if (mounted) {
-                try {
-                  const userProfile = await fetchUserProfile(newSession.user.id);
+          try {
+            // Update session and user state
+            setSession(newSession);
+            setUser(newSession?.user ?? null);
+            
+            // Handle profile fetching for authenticated users
+            if (newSession?.user && event !== 'SIGNED_OUT') {
+              try {
+                const userProfile = await fetchUserProfile(newSession.user.id);
+                if (mounted) {
                   setProfile(userProfile);
-                } catch (error) {
-                  console.error('Error fetching profile in auth callback:', error);
+                }
+              } catch (profileError) {
+                console.error('Error fetching profile:', profileError);
+                if (mounted) {
                   setProfile(null);
                 }
               }
-            }, 0);
-          } else {
-            setProfile(null);
+            } else {
+              if (mounted) {
+                setProfile(null);
+              }
+            }
+          } catch (error) {
+            console.error('Error in auth state change handler:', error);
+            captureError(error, { context: 'AuthProvider.onAuthStateChange' });
           }
           
-          // Only set loading to false after handling the auth change
+          // Set loading to false after handling auth change
           if (mounted) {
             setIsLoading(false);
           }
         });
 
-        // THEN get initial session
-        const { data: sessionData, error } = await supabase.auth.getSession();
+        authSubscription = data.subscription;
         
-        if (error) {
-          console.error('Error getting initial session:', error);
-          captureError(error, { context: 'AuthProvider.getSession' });
-        }
-        
-        // If we have a session but auth listener hasn't fired yet, update state
-        if (mounted && sessionData?.session) {
-          console.log('Initial session found:', sessionData.session.user.email);
-          setSession(sessionData.session);
-          setUser(sessionData.session.user);
+        // Get initial session with better error handling
+        try {
+          const { data: sessionData, error } = await supabase.auth.getSession();
           
-          // Fetch profile for initial session
-          try {
-            const userProfile = await fetchUserProfile(sessionData.session.user.id);
-            setProfile(userProfile);
-          } catch (error) {
-            console.error('Error fetching initial profile:', error);
-            setProfile(null);
+          if (error) {
+            console.error('Error getting initial session:', error);
+            captureError(error, { context: 'AuthProvider.getSession' });
+          } else if (mounted && sessionData?.session) {
+            console.log('Initial session found:', sessionData.session.user.email);
+            // The onAuthStateChange will handle setting the session
           }
+        } catch (sessionError) {
+          console.error('Session retrieval error:', sessionError);
+          captureError(sessionError, { context: 'AuthProvider.getSession' });
         }
         
         if (mounted) {
           setIsLoading(false);
         }
-
-        return () => {
-          if (authListener?.subscription) {
-            authListener.subscription.unsubscribe();
-          }
-        };
       } catch (error) {
         console.error('Auth setup error:', error);
         captureError(error, { context: 'AuthProvider.setupAuth' });
@@ -105,13 +104,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       }
     };
 
-    setupAuth().then(cleanup => {
-      // Store cleanup function
-      return cleanup;
-    });
+    setupAuth();
     
     return () => {
       mounted = false;
+      if (authSubscription) {
+        authSubscription.unsubscribe();
+      }
     };
   }, []);
   

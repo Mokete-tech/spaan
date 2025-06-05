@@ -59,11 +59,13 @@ export const updatePassword = async (password: string) => {
  */
 export const handleAuthCallback = async () => {
   try {
+    // Handle the auth callback
     const { data, error } = await supabase.auth.getSession();
     
     if (error) {
+      console.error('Auth callback error:', error);
       captureError(error, { context: 'handleAuthCallback' });
-      return { success: false, error };
+      return { success: false, error, redirectTo: '/auth' };
     }
     
     // Check if user needs to complete profile
@@ -95,7 +97,8 @@ export const handleAuthCallback = async () => {
     
     return { success: false, redirectTo: '/auth' };
   } catch (error) {
+    console.error('Auth callback error:', error);
     captureError(error, { context: 'handleAuthCallback' });
-    return { success: false, error };
+    return { success: false, error, redirectTo: '/auth' };
   }
 };
