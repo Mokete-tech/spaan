@@ -32,16 +32,22 @@ const Auth = () => {
     }
   }, [user, isLoading, navigate]);
 
-  // Handle URL error parameters
+  // Handle URL error parameters and success messages
   useEffect(() => {
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
+    const message = searchParams.get("message");
     
     if (error || errorDescription) {
       toast({
         title: "Authentication Error",
-        description: errorDescription || "Authentication failed. Please try again.",
+        description: errorDescription || error || "Authentication failed. Please try again.",
         variant: "destructive"
+      });
+    } else if (message) {
+      toast({
+        title: "Success",
+        description: message,
       });
     }
   }, [searchParams, toast]);
@@ -67,6 +73,8 @@ const Auth = () => {
       });
       
       if (error) {
+        console.error("Sign in error:", error);
+        
         if (error.message.includes("Invalid login credentials")) {
           toast({
             title: "Invalid Credentials",
@@ -75,8 +83,14 @@ const Auth = () => {
           });
         } else if (error.message.includes("Email not confirmed")) {
           toast({
-            title: "Email Not Verified",
+            title: "Email Not Verified", 
             description: "Please check your email and click the verification link",
+            variant: "destructive"
+          });
+        } else if (error.message.includes("Too many requests")) {
+          toast({
+            title: "Too Many Attempts",
+            description: "Please wait a moment before trying again",
             variant: "destructive"
           });
         } else {
@@ -90,6 +104,7 @@ const Auth = () => {
       }
 
       if (data.user) {
+        console.log("Sign in successful:", data.user.email);
         toast({
           title: "Welcome back!",
           description: "You have successfully signed in"
@@ -97,7 +112,7 @@ const Auth = () => {
         navigate("/");
       }
     } catch (error: any) {
-      console.error("Sign in error:", error);
+      console.error("Unexpected sign in error:", error);
       toast({
         title: "Unexpected Error",
         description: "Something went wrong. Please try again.",
@@ -154,10 +169,18 @@ const Auth = () => {
       });
       
       if (error) {
+        console.error("Sign up error:", error);
+        
         if (error.message.includes("User already registered")) {
           toast({
             title: "Account Exists",
             description: "An account with this email already exists. Please sign in instead.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes("Signup is disabled")) {
+          toast({
+            title: "Registration Disabled",
+            description: "New registrations are currently disabled. Please contact support.",
             variant: "destructive"
           });
         } else {
@@ -171,21 +194,34 @@ const Auth = () => {
       }
       
       if (data.user) {
-        toast({
-          title: "Account Created!",
-          description: data.user.email_confirmed_at 
-            ? "Your account has been created successfully" 
-            : "Please check your email to verify your account"
-        });
+        console.log("Sign up successful:", data.user.email);
         
         if (data.user.email_confirmed_at) {
+          // Email is already confirmed (happens in some configurations)
+          toast({
+            title: "Account Created!",
+            description: "Your account has been created successfully"
+          });
           navigate("/profile-wizard");
+        } else {
+          // Email confirmation required
+          toast({
+            title: "Check Your Email",
+            description: "We've sent you a confirmation link. Please check your email to verify your account.",
+          });
+          
+          // Clear the form
+          setEmail("");
+          setPassword("");
+          setConfirmPassword("");
+          setFirstName("");
+          setLastName("");
         }
       }
     } catch (error: any) {
-      console.error("Sign up error:", error);
+      console.error("Unexpected sign up error:", error);
       toast({
-        title: "Unexpected Error",
+        title: "Unexpected Error", 
         description: "Something went wrong. Please try again.",
         variant: "destructive"
       });
@@ -196,6 +232,7 @@ const Auth = () => {
 
   const handleSocialLogin = async (provider: 'google' | 'github') => {
     try {
+      setLoading(true);
       const { error } = await supabase.auth.signInWithOAuth({
         provider,
         options: {
@@ -204,6 +241,7 @@ const Auth = () => {
       });
       
       if (error) {
+        console.error(`${provider} login error:`, error);
         toast({
           title: `${provider} Sign In Failed`,
           description: error.message,
@@ -217,6 +255,8 @@ const Auth = () => {
         description: "Something went wrong. Please try again.",
         variant: "destructive"
       });
+    } finally {
+      setLoading(false);
     }
   };
 
