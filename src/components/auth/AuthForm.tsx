@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { Loader2, Mail, Lock, Eye, EyeOff } from "lucide-react";
+import { Loader2, Mail, Lock, Eye, EyeOff, Phone } from "lucide-react";
 
 interface AuthFormProps {
   type: 'signin' | 'signup';
@@ -18,6 +18,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -25,6 +26,8 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
 
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log("Attempting sign in with:", { email });
     
     if (!email || !password) {
       toast({
@@ -38,10 +41,12 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim(),
         password,
       });
+      
+      console.log("Sign in response:", { data, error });
       
       if (error) {
         console.error("Sign in error:", error);
@@ -53,6 +58,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         return;
       }
 
+      console.log("Sign in successful:", data.user?.email);
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in"
@@ -73,6 +79,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    console.log("Attempting sign up with:", { 
+      email, 
+      firstName, 
+      lastName, 
+      phone,
+      passwordLength: password.length 
+    });
     
     if (!email || !password || !firstName || !lastName) {
       toast({
@@ -104,17 +118,23 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
     setLoading(true);
     
     try {
-      const { error } = await supabase.auth.signUp({
+      const redirectUrl = `${window.location.origin}/auth/callback`;
+      console.log("Using redirect URL:", redirectUrl);
+      
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
         password,
         options: {
           data: {
             first_name: firstName.trim(),
             last_name: lastName.trim(),
+            phone: phone.trim() || null,
           },
-          emailRedirectTo: `${window.location.origin}/auth/callback`
+          emailRedirectTo: redirectUrl
         },
       });
+      
+      console.log("Sign up response:", { data, error });
       
       if (error) {
         console.error("Sign up error:", error);
@@ -126,10 +146,18 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         return;
       }
       
-      toast({
-        title: "Check Your Email",
-        description: "We've sent you a confirmation link. Please check your email to verify your account.",
-      });
+      if (data.user && !data.session) {
+        toast({
+          title: "Check Your Email",
+          description: "We've sent you a confirmation link. Please check your email to verify your account.",
+        });
+      } else if (data.session) {
+        toast({
+          title: "Account Created!",
+          description: "Your account has been created successfully.",
+        });
+        if (onSuccess) onSuccess();
+      }
       
       // Clear form
       setEmail("");
@@ -137,6 +165,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
       setConfirmPassword("");
       setFirstName("");
       setLastName("");
+      setPhone("");
       
     } catch (error: any) {
       console.error("Unexpected sign up error:", error);
@@ -171,7 +200,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
                 </label>
                 <Input
                   id="firstName"
-                  placeholder="John"
+                  placeholder="Mokete"
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   required
@@ -184,7 +213,7 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
                 </label>
                 <Input
                   id="lastName"
-                  placeholder="Doe"
+                  placeholder="Nzimande"
                   value={lastName}
                   onChange={(e) => setLastName(e.target.value)}
                   required
@@ -196,14 +225,14 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
           
           <div className="space-y-2">
             <label htmlFor="email" className="text-sm font-medium text-gray-700">
-              Email
+              Email *
             </label>
             <div className="relative">
               <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
               <Input
                 id="email"
                 type="email"
-                placeholder="you@example.com"
+                placeholder="velley.velley@gmail.com"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 className="pl-10"
@@ -212,10 +241,30 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
               />
             </div>
           </div>
+
+          {type === 'signup' && (
+            <div className="space-y-2">
+              <label htmlFor="phone" className="text-sm font-medium text-gray-700">
+                Phone Number (optional)
+              </label>
+              <div className="relative">
+                <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="phone"
+                  type="tel"
+                  placeholder="+27645007165"
+                  value={phone}
+                  onChange={(e) => setPhone(e.target.value)}
+                  className="pl-10"
+                  autoComplete="tel"
+                />
+              </div>
+            </div>
+          )}
           
           <div className="space-y-2">
             <label htmlFor="password" className="text-sm font-medium text-gray-700">
-              Password
+              Password *
             </label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
