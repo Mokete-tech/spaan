@@ -69,6 +69,42 @@ const checkVerificationStatus = async (userId: string) => {
   }
 }
 
+// Auto-approve verification
+const autoApproveVerification = async (providerId: string) => {
+  try {
+    console.log(`Auto-approving verification for provider ${providerId}`)
+    
+    // Update provider status to approved
+    const { error: providerError } = await supabase
+      .from("providers")
+      .update({ 
+        verification_status: "approved",
+        updated_at: new Date().toISOString()
+      })
+      .eq("id", providerId)
+    
+    if (providerError) throw providerError
+    
+    // Update all documents to approved
+    const { error: docsError } = await supabase
+      .from("verification_documents")
+      .update({ 
+        status: "approved",
+        admin_notes: "Auto-approved by system",
+        updated_at: new Date().toISOString()
+      })
+      .eq("provider_id", providerId)
+    
+    if (docsError) throw docsError
+    
+    console.log(`Successfully auto-approved provider ${providerId}`)
+    return true
+  } catch (error) {
+    console.error("Auto-approve error:", error)
+    return false
+  }
+}
+
 // Submit provider application
 const submitApplication = async (
   userId: string,
@@ -127,11 +163,20 @@ const submitApplication = async (
         role: "provider",
       })
     
+    // Auto-approve the verification
+    const autoApproved = await autoApproveVerification(provider.id)
+    
+    const finalStatus = autoApproved ? "approved" : "pending"
+    const message = autoApproved 
+      ? "Provider application submitted and automatically approved! You can now start offering services."
+      : "Provider application submitted successfully and is pending review"
+    
     return {
       success: true,
       provider_id: provider.id,
-      status: "pending",
-      message: "Provider application submitted successfully and is pending review",
+      status: finalStatus,
+      auto_approved: autoApproved,
+      message: message,
     }
   } catch (error) {
     console.error("Submit application error:", error)

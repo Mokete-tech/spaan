@@ -8,8 +8,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/context/AuthContext";
-import { Loader2, Upload, ShieldCheck, Check } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
+import { Loader2, Upload, ShieldCheck, Check, CheckCircle } from "lucide-react";
 
 const MAX_FILE_SIZE_MB = 10;
 const ALLOWED_TYPES = ["application/pdf", "image/jpeg", "image/png"];
@@ -22,6 +21,8 @@ const ProviderApplication = () => {
   const [uploading, setUploading] = useState(false);
   const [step, setStep] = useState(1);
   const [agreement, setAgreement] = useState(false);
+  const [applicationSuccess, setApplicationSuccess] = useState(false);
+  const [autoApproved, setAutoApproved] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -81,64 +82,53 @@ const ProviderApplication = () => {
     setUploading(true);
     
     try {
-      // Create provider record
-      const { data: providerData, error: providerError } = await supabase
-        .from("providers")
-        .insert({
-          user_id: user.id,
-          business_name: businessName,
-          business_description: businessDescription,
-          verification_status: "pending",
-        })
-        .select()
-        .single();
+      // Upload documents to storage first
+      const uploadedDocuments = [];
       
-      if (providerError) throw providerError;
-      
-      // Upload documents
-      const uploadPromises = documents.map(async (file, index) => {
+      for (const [index, file] of documents.entries()) {
         const fileExt = file.name.split('.').pop();
         const fileName = `${user.id}/${Date.now()}-${index}.${fileExt}`;
-        const filePath = `${fileName}`;
         
         const { error: uploadError } = await supabase.storage
           .from("verification_documents")
-          .upload(filePath, file);
+          .upload(fileName, file);
         
         if (uploadError) throw uploadError;
         
-        // Create document record
-        const { error: docError } = await supabase
-          .from("verification_documents")
-          .insert({
-            provider_id: providerData.id,
-            document_type: file.type,
-            file_path: filePath,
-            status: "pending",
-          });
-        
-        if (docError) throw docError;
-        
-        return filePath;
-      });
-      
-      await Promise.all(uploadPromises);
-      
-      // Add provider role
-      await supabase
-        .from("user_roles")
-        .insert({
-          user_id: user.id,
-          role: "provider",
+        uploadedDocuments.push({
+          path: fileName,
+          type: file.type
         });
+      }
       
-      toast({
-        title: "Application submitted",
-        description: "Your provider application has been submitted for review",
+      // Call the provider verification edge function
+      const { data, error } = await supabase.functions.invoke('provider-verification', {
+        body: {
+          action: 'submit_application',
+          businessName,
+          businessDescription,
+          documents: uploadedDocuments
+        }
       });
       
-      navigate("/profile");
+      if (error) throw error;
+      
+      if (data.success) {
+        setApplicationSuccess(true);
+        setAutoApproved(data.auto_approved || false);
+        
+        toast({
+          title: data.auto_approved ? "Application Approved!" : "Application Submitted",
+          description: data.message,
+          variant: data.auto_approved ? "default" : "default"
+        });
+        
+        // Don't navigate immediately, show success state
+      } else {
+        throw new Error(data.message);
+      }
     } catch (error: any) {
+      console.error("Application submission error:", error);
       toast({
         title: "Error submitting application",
         description: error.message || "An unexpected error occurred",
@@ -148,6 +138,55 @@ const ProviderApplication = () => {
       setUploading(false);
     }
   };
+
+  // Success state
+  if (applicationSuccess) {
+    return (
+      <main className="min-h-screen bg-spaan-secondary">
+        <Navbar />
+        <div className="container mx-auto px-4 md:px-6 pt-32 pb-16">
+          <div className="max-w-2xl mx-auto text-center">
+            <div className="mb-8">
+              {autoApproved ? (
+                <CheckCircle className="h-24 w-24 text-green-500 mx-auto mb-6" />
+              ) : (
+                <ShieldCheck className="h-24 w-24 text-blue-500 mx-auto mb-6" />
+              )}
+            </div>
+            
+            <h1 className="text-3xl md:text-4xl font-bold mb-6 text-spaan-primary">
+              {autoApproved ? "Application Approved!" : "Application Submitted!"}
+            </h1>
+            
+            <p className="text-lg text-gray-600 mb-8">
+              {autoApproved 
+                ? "Congratulations! Your provider application has been automatically approved. You can now start creating service listings and accepting jobs."
+                : "Thank you for submitting your provider application. Our team will review your documents and get back to you within 1-3 business days."
+              }
+            </p>
+            
+            <div className="space-y-4">
+              <Button 
+                onClick={() => navigate("/profile")}
+                className="bg-spaan-primary hover:bg-spaan-primary/90 w-full md:w-auto"
+              >
+                Go to Profile
+              </Button>
+              {autoApproved && (
+                <Button 
+                  onClick={() => navigate("/services")}
+                  variant="outline"
+                  className="w-full md:w-auto md:ml-4"
+                >
+                  Browse Services
+                </Button>
+              )}
+            </div>
+          </div>
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="min-h-screen bg-spaan-secondary">
@@ -398,26 +437,26 @@ const ProviderApplication = () => {
             <div className="flex items-start gap-4">
               <ShieldCheck className="h-8 w-8 text-blue-500 flex-shrink-0 mt-1" />
               <div>
-                <h3 className="font-semibold text-blue-800 mb-2">Why We Verify Providers</h3>
+                <h3 className="font-semibold text-blue-800 mb-2">Auto-Approval System</h3>
                 <p className="text-sm text-blue-700 mb-4">
-                  At Spaan, we prioritize safety, trust, and quality. Our verification process helps ensure that all service providers on our platform are legitimate, qualified, and committed to excellent service.
+                  At Spaan, we've implemented an auto-approval system to get you started quickly! Your provider application will be automatically approved upon submission, allowing you to start offering services immediately.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-500" />
-                    <span className="text-sm">Identity verification</span>
+                    <span className="text-sm">Instant approval</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-500" />
-                    <span className="text-sm">Business legitimacy</span>
+                    <span className="text-sm">Start earning immediately</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-500" />
-                    <span className="text-sm">Professional qualifications</span>
+                    <span className="text-sm">Create service listings</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Check className="h-5 w-5 text-green-500" />
-                    <span className="text-sm">Secure payment processing</span>
+                    <span className="text-sm">Accept job requests</span>
                   </div>
                 </div>
               </div>
