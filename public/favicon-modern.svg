@@ -1,0 +1,30 @@
+
+<svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bg-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#3B82F6;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#1D4ED8;stop-opacity:1" />
+    </linearGradient>
+    <linearGradient id="s-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#FFFFFF;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#F1F5F9;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded background -->
+  <rect width="32" height="32" rx="8" fill="url(#bg-gradient)"/>
+  
+  <!-- Modern "S" design -->
+  <path d="M8 12.5C8 9.73858 10.2386 7.5 13 7.5H16.5C17.8807 7.5 19 8.61929 19 10C19 11.3807 17.8807 12.5 16.5 12.5H13C11.6193 12.5 10.5 13.6193 10.5 15C10.5 16.3807 11.6193 17.5 13 17.5H16.5C19.2614 17.5 21.5 19.7386 21.5 22.5C21.5 25.2614 19.2614 27.5 16.5 27.5H13C10.2386 27.5 8 25.2614 8 22.5" 
+        stroke="url(#s-gradient)" 
+        stroke-width="2.5" 
+        stroke-linecap="round" 
+        fill="none"/>
+  
+  <!-- Connection dots for service marketplace theme -->
+  <circle cx="6" cy="6" r="1.5" fill="#60A5FA" opacity="0.8"/>
+  <circle cx="26" cy="26" r="1.5" fill="#60A5FA" opacity="0.8"/>
+  <circle cx="26" cy="6" r="1" fill="#93C5FD" opacity="0.6"/>
+  <circle cx="6" cy="26" r="1" fill="#93C5FD" opacity="0.6"/>
+</svg>
