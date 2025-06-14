@@ -1,84 +1,70 @@
 
-import * as Sentry from '@sentry/react';
-import { toast } from '@/hooks/use-toast';
+import * as Sentry from "@sentry/react";
 
-// Initialize Sentry in a separate file to avoid initializing it multiple times
+// Initialize Sentry with proper configuration
 export const initSentry = () => {
-  if (process.env.NODE_ENV !== 'development') {
+  // Only initialize Sentry in production with a valid DSN
+  const dsn = import.meta.env.VITE_SENTRY_DSN;
+  
+  if (dsn && dsn !== 'YOUR_SENTRY_DSN' && import.meta.env.PROD) {
     Sentry.init({
-      dsn: "YOUR_SENTRY_DSN", // Replace with your actual Sentry DSN
+      dsn,
+      environment: import.meta.env.MODE,
       integrations: [
         new Sentry.BrowserTracing(),
       ],
-      tracesSampleRate: 0.5,
-      // Enable ML-powered error grouping
-      beforeSend(event) {
-        // We can add custom logic here to process the event before sending to Sentry
-        return event;
-      },
+      tracesSampleRate: 1.0,
     });
+    console.log('Sentry initialized successfully');
+  } else {
+    console.log('Sentry not initialized - no valid DSN provided or in development mode');
   }
 };
 
-// Capture errors with context
-export const captureError = (error: any, context?: Record<string, any>) => {
-  console.error("Error captured:", error);
+// Enhanced error capturing with context
+export const captureError = (error: any, context?: any) => {
+  console.error('Error captured:', error, context);
   
-  // Send to Sentry in production
-  if (process.env.NODE_ENV !== 'development') {
-    Sentry.captureException(error, {
-      extra: context,
-    });
+  if (import.meta.env.PROD) {
+    try {
+      Sentry.captureException(error, {
+        tags: context?.tags,
+        extra: context,
+      });
+    } catch (sentryError) {
+      console.error('Failed to send error to Sentry:', sentryError);
+    }
   }
-
-  // Show user-friendly notification
-  toast({
-    title: "Something went wrong",
-    description: error.message || "An unexpected error occurred",
-    variant: "destructive"
-  });
-
-  return error;
 };
 
-// Auto retry functionality for async operations
+// Retry utility function
 export const withRetry = async <T>(
-  operation: () => Promise<T>,
-  maxRetries = 3,
-  delayMs = 1000,
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  delayMs: number = 1000,
   onRetry?: (attempt: number, error: any) => void
 ): Promise<T> => {
   let lastError: any;
   
   for (let attempt = 1; attempt <= maxRetries; attempt++) {
     try {
-      return await operation();
+      return await fn();
     } catch (error) {
       lastError = error;
       
-      // Call the onRetry callback if provided
+      if (attempt === maxRetries) {
+        captureError(error, { context: 'withRetry', attempt, maxRetries });
+        throw error;
+      }
+      
       if (onRetry) {
         onRetry(attempt, error);
       }
       
-      // Log the retry attempt
-      console.log(`Retry attempt ${attempt}/${maxRetries} failed:`, error);
-      
-      // Don't delay on the last attempt since we're going to throw anyway
-      if (attempt < maxRetries) {
-        // Exponential backoff
-        const backoffDelay = delayMs * Math.pow(2, attempt - 1);
-        await new Promise(resolve => setTimeout(resolve, backoffDelay));
-      }
+      // Exponential backoff
+      await new Promise(resolve => setTimeout(resolve, delayMs * Math.pow(2, attempt - 1)));
     }
   }
-  
-  // If we've exhausted all retries, capture the error and throw
-  captureError(lastError, { 
-    context: 'withRetry',
-    maxRetries,
-    operation: operation.toString().substring(0, 100) 
-  });
   
   throw lastError;
 };
