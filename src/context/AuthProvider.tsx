@@ -36,7 +36,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         
         // Set up auth state listener
         const { data } = supabase.auth.onAuthStateChange(async (event, newSession) => {
-          console.log('Auth state changed:', event, newSession?.user?.email);
           
           if (!mounted) return;
 
@@ -84,7 +83,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             console.error('Error getting initial session:', error);
             captureError(error, { context: 'AuthProvider.getSession' });
           } else if (mounted && sessionData?.session) {
-            console.log('Initial session found:', sessionData.session.user.email);
             // The onAuthStateChange will handle setting the session
           }
         } catch (sessionError) {

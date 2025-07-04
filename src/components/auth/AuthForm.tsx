@@ -27,8 +27,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
   const handleSignIn = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log("Attempting sign in with:", { email });
-    
     if (!email || !password) {
       toast({
         title: "Missing Information",
@@ -46,8 +44,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         password,
       });
       
-      console.log("Sign in response:", { data, error });
-      
       if (error) {
         console.error("Sign in error:", error);
         toast({
@@ -58,7 +54,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
         return;
       }
 
-      console.log("Sign in successful:", data.user?.email);
       toast({
         title: "Welcome back!",
         description: "You have successfully signed in"
@@ -79,14 +74,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
 
   const handleSignUp = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    console.log("Attempting sign up with:", { 
-      email, 
-      firstName, 
-      lastName, 
-      phone,
-      passwordLength: password.length 
-    });
     
     if (!email || !password || !firstName || !lastName) {
       toast({
@@ -119,7 +106,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
     
     try {
       const redirectUrl = `${window.location.origin}/auth/callback`;
-      console.log("Using redirect URL:", redirectUrl);
       
       const { data, error } = await supabase.auth.signUp({
         email: email.trim(),
@@ -133,8 +119,6 @@ const AuthForm: React.FC<AuthFormProps> = ({ type, onSuccess }) => {
           emailRedirectTo: redirectUrl
         },
       });
-      
-      console.log("Sign up response:", { data, error });
       
       if (error) {
         console.error("Sign up error:", error);

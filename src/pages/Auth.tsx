@@ -21,7 +21,6 @@ const Auth = () => {
   // If user is already logged in, redirect to home
   useEffect(() => {
     if (!isLoading && user) {
-      console.log("User already authenticated, redirecting to home");
       navigate("/");
     }
   }, [user, isLoading, navigate]);
@@ -31,8 +30,6 @@ const Auth = () => {
     const error = searchParams.get("error");
     const errorDescription = searchParams.get("error_description");
     const message = searchParams.get("message");
-    
-    console.log("Auth page URL params:", { error, errorDescription, message });
     
     if (error || errorDescription) {
       const errorMsg = errorDescription || error || "Authentication failed. Please try again.";

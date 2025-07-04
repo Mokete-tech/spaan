@@ -15,16 +15,13 @@ const AuthCallback = () => {
   useEffect(() => {
     const processCallback = async () => {
       try {
-        console.log("Processing auth callback...");
         setIsProcessing(true);
         
         const result = await handleAuthCallback();
-        console.log("Auth callback result:", result);
         
         setDebugInfo(result);
         
         if (result.success) {
-          console.log("Auth callback successful, redirecting to:", result.redirectTo);
           setTimeout(() => {
             navigate(result.redirectTo || "/", { replace: true });
           }, 1000);
