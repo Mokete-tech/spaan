@@ -31,10 +31,8 @@ const Navbar = () => {
   };
 
   const menuItems = [
-    { label: "Services", href: "/services", icon: <Briefcase className="mr-2 h-4 w-4" /> },
-    { label: "Explore", href: "/explore", icon: <Search className="mr-2 h-4 w-4" /> },
-    { label: "Post Job", href: "/post-job", icon: <Briefcase className="mr-2 h-4 w-4" /> },
-    { label: "Providers", href: "/providers", icon: <UserCog className="mr-2 h-4 w-4" /> },
+    { label: "Find Gigs", href: "/explore", icon: <Search className="mr-2 h-4 w-4" /> },
+    { label: "Post a Job", href: "/post-job", icon: <Briefcase className="mr-2 h-4 w-4" /> },
   ];
 
   const authMenuItems = user
@@ -138,8 +136,7 @@ const Navbar = () => {
                     to="/auth"
                     className="flex items-center px-4 py-2 text-white bg-blue-600 hover:bg-blue-700 rounded-md transition-colors"
                   >
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login / Sign Up
+                    Sign In
                   </Link>
                 )}
               </nav>
@@ -224,8 +221,7 @@ const Navbar = () => {
               ) : (
                 <Button asChild className="bg-blue-600 hover:bg-blue-700 text-white">
                   <Link to="/auth" className="flex items-center">
-                    <LogIn className="mr-2 h-4 w-4" />
-                    Login / Sign Up
+                    Sign In
                   </Link>
                 </Button>
               )}
